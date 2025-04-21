@@ -255,11 +255,11 @@ export function ChallengeTracker() {
       </div>
 
       <table className="w-full border-collapse">
-        <thead className="sticky top-0 z-10">
+        <thead className="sticky top-0 z-10 bg-white">
           <tr>
-            <th className="border bg-gray-50 p-3 text-left">Date</th>
+            <th className="border  p-3 text-left">Date</th>
             {challenge.challenges.map((item) => (
-              <th key={item.id} className="border bg-gray-50 p-3 text-center">
+              <th key={item.id} className="border p-3 text-center">
                 <span
                   className="text-xl"
                   role="img"
