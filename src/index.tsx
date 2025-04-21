@@ -1,8 +1,14 @@
-import { createRoot } from 'react-dom/client'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
 import 'tailwindcss/tailwind.css'
-import App from './components/app'
 
-const container = document.getElementById('root') as HTMLDivElement
-const root = createRoot(container)
+import './firebase/config' // Initialize Firebase
+import App from './App-2'
 
-root.render(<App />)
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
+
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+)
