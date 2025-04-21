@@ -9,21 +9,8 @@ import {
 import { ChallengeItem, FirebaseChallenge } from '../../types'
 import { useAuth } from '../../context/AuthContext'
 
-const ICON_OPTIONS = [
-  'Utensils',
-  'Book',
-  'Dumbbell',
-  'GlassWater',
-  'Moon',
-  'Sun',
-  'Heart',
-  'Camera',
-  'Bike',
-  'Brain',
-  'Bed',
-  'Phone',
-  'Smile'
-]
+// Default emoji for new challenge items
+const DEFAULT_EMOJI = '📖'
 
 export function EditChallengeForm() {
   const { challengeId } = useParams<{ challengeId: string }>()
@@ -31,8 +18,6 @@ export function EditChallengeForm() {
   const navigate = useNavigate()
 
   const [title, setTitle] = useState('')
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -64,10 +49,6 @@ export function EditChallengeForm() {
 
         setChallenge(challengeData)
         setTitle(challengeData.title)
-        setStartDate(
-          new Date(challengeData.startDate).toISOString().split('T')[0]
-        )
-        setEndDate(new Date(challengeData.endDate).toISOString().split('T')[0])
         setChallengeItems(challengeData.challenges || [])
       } catch (err) {
         console.error('Error fetching challenge:', err)
@@ -87,7 +68,7 @@ export function EditChallengeForm() {
       {
         id: Date.now().toString(),
         label: '',
-        icon: 'Utensils'
+        icon: DEFAULT_EMOJI
       }
     ])
   }
@@ -126,19 +107,6 @@ export function EditChallengeForm() {
       return
     }
 
-    if (!startDate || !endDate) {
-      setError('Start and end dates are required')
-      return
-    }
-
-    const startTimestamp = new Date(startDate).getTime()
-    const endTimestamp = new Date(endDate).getTime()
-
-    if (startTimestamp >= endTimestamp) {
-      setError('End date must be after start date')
-      return
-    }
-
     if (challengeItems.some((item) => !item.label)) {
       setError('All challenge items must have a label')
       return
@@ -150,8 +118,6 @@ export function EditChallengeForm() {
 
       const updatedData: Partial<FirebaseChallenge> = {
         title,
-        startDate: startTimestamp,
-        endDate: endTimestamp,
         challenges: challengeItems
       }
 
@@ -266,42 +232,6 @@ export function EditChallengeForm() {
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <label
-              htmlFor="start-date"
-              className="mb-1 block text-sm font-medium"
-            >
-              Start Date
-            </label>
-            <input
-              id="start-date"
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-full rounded-md border px-3 py-2"
-              required
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="end-date"
-              className="mb-1 block text-sm font-medium"
-            >
-              End Date
-            </label>
-            <input
-              id="end-date"
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-full rounded-md border px-3 py-2"
-              required
-            />
-          </div>
-        </div>
-
         <div>
           <div className="mb-3 flex items-center justify-between">
             <h3 className="text-lg font-semibold">Challenge Items</h3>
@@ -347,22 +277,18 @@ export function EditChallengeForm() {
                       htmlFor={`item-icon-${item.id}`}
                       className="mb-1 block text-sm font-medium"
                     >
-                      Icon
+                      Emoji
                     </label>
-                    <select
+                    <input
                       id={`item-icon-${item.id}`}
+                      type="text"
                       value={item.icon}
                       onChange={(e) =>
                         updateChallengeItem(item.id, 'icon', e.target.value)
                       }
                       className="w-full rounded-md border px-3 py-2"
-                    >
-                      {ICON_OPTIONS.map((icon) => (
-                        <option key={icon} value={icon}>
-                          {icon}
-                        </option>
-                      ))}
-                    </select>
+                      placeholder="Add an emoji"
+                    />
                   </div>
 
                   <div className="mt-3">

@@ -1,58 +1,39 @@
 import React from 'react'
-import {
-  BookOpen,
-  Camera,
-  Dumbbell,
-  GlassWater,
-  Utensils,
-  Wine,
-  Book,
-  Sun,
-  Moon,
-  Heart,
-  Bike,
-  Brain,
-  Bed,
-  Phone,
-  Smile,
-  LucideProps,
-  LucideIcon
-} from 'lucide-react'
 
-const iconMap: Record<string, LucideIcon> = {
-  BookOpen,
-  Camera,
-  Dumbbell,
-  GlassWater,
-  Utensils,
-  Wine,
-  Book,
-  Sun,
-  Moon,
-  Heart,
-  Bike,
-  Brain,
-  Bed,
-  Phone,
-  Smile
+interface EmojiProps {
+  emoji: string
+  className?: string
+  style?: React.CSSProperties
+  onClick?: React.MouseEventHandler
+  title?: string
+  [key: string]: unknown
 }
 
 /**
- * Converts a string icon name to a Lucide icon component
- * @param iconName The name of the icon from Lucide
- * @param props Additional props to pass to the icon
- * @returns React element or null if icon not found
+ * Renders an emoji
+ * @param emoji The emoji character
+ * @param props Additional props like className
+ * @returns React element with the emoji
+ */
+export const renderEmoji = ({
+  emoji,
+  className = '',
+  ...props
+}: EmojiProps): React.ReactElement => {
+  return (
+    <span className={className} role="img" aria-label="emoji" {...props}>
+      {emoji || '😀'}
+    </span>
+  )
+}
+
+/**
+ * Legacy function to maintain compatibility with existing code
+ * Now it just renders the emoji directly
  */
 export const getIcon = (
-  iconName: string,
-  props: LucideProps = {}
-): React.ReactElement | null => {
-  const Icon = iconMap[iconName]
-
-  if (!Icon) {
-    console.warn(`Icon '${iconName}' not found in iconMap`)
-    return null
-  }
-
-  return <Icon {...props} />
+  emoji: string,
+  props: { className?: string; style?: React.CSSProperties } = {}
+): React.ReactElement => {
+  return renderEmoji({ emoji, ...props })
 }

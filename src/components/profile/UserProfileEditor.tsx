@@ -91,7 +91,7 @@ export function UserProfileEditor() {
   return (
     <div className="mx-auto max-w-md rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
       <div className="mb-6 flex items-center">
-        <h2 className="text-xl font-bold">Your Profile</h2>
+        <h2 className="text-xl font-bold">My Profile</h2>
         <div
           className="ml-3 size-6 rounded-full"
           style={{ backgroundColor: selectedColor }}

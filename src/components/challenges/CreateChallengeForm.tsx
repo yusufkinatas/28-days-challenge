@@ -4,34 +4,26 @@ import { useNavigate } from 'react-router-dom'
 import { createChallenge } from '../../firebase/services'
 import { ChallengeItem, FirebaseChallenge } from '../../types'
 
-const ICON_OPTIONS = [
-  'Utensils',
-  'Book',
-  'Dumbbell',
-  'GlassWater',
-  'Moon',
-  'Sun',
-  'Heart',
-  'Camera',
-  'Bike',
-  'Brain',
-  'Bed',
-  'Phone',
-  'Smile'
-]
+// Default emoji for new challenge items
+const DEFAULT_EMOJI = '📖'
+
+// Helper function to format date to YYYY-MM-DD for input[type="date"]
+const formatDateForInput = (date: Date): string => {
+  return date.toISOString().split('T')[0]
+}
 
 export function CreateChallengeForm() {
   const navigate = useNavigate()
 
   const [title, setTitle] = useState('')
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
+  const [startDate, setStartDate] = useState(formatDateForInput(new Date()))
+  const [challengeLength, setChallengeLength] = useState(28)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
   // Challenge items state
   const [challengeItems, setChallengeItems] = useState<ChallengeItem[]>([
-    { id: '1', label: '', icon: 'Utensils' }
+    { id: '1', label: '', icon: DEFAULT_EMOJI }
   ])
 
   // Add new challenge item
@@ -41,7 +33,7 @@ export function CreateChallengeForm() {
       {
         id: Date.now().toString(),
         label: '',
-        icon: 'Utensils'
+        icon: DEFAULT_EMOJI
       }
     ])
   }
@@ -78,18 +70,26 @@ export function CreateChallengeForm() {
       return
     }
 
-    if (!startDate || !endDate) {
-      setError('Start and end dates are required')
+    if (!startDate) {
+      setError('Start date is required')
       return
     }
 
-    const startTimestamp = new Date(startDate).getTime()
-    const endTimestamp = new Date(endDate).getTime()
-
-    if (startTimestamp >= endTimestamp) {
-      setError('End date must be after start date')
+    if (challengeLength < 1) {
+      setError('Challenge length must be at least 1 day')
       return
     }
+
+    // Parse the start date
+    const parsedStartDate = new Date(startDate)
+    // Reset to beginning of day
+    parsedStartDate.setHours(0, 0, 0, 0)
+    const startTimestamp = parsedStartDate.getTime()
+
+    // Calculate end date by adding challengeLength days to start date
+    const endDate = new Date(startTimestamp)
+    endDate.setDate(endDate.getDate() + challengeLength - 1) // -1 because the start day is included
+    const endTimestamp = endDate.getTime()
 
     if (challengeItems.some((item) => !item.label)) {
       setError('All challenge items must have a label')
@@ -165,16 +165,18 @@ export function CreateChallengeForm() {
 
           <div>
             <label
-              htmlFor="end-date"
+              htmlFor="challenge-length"
               className="mb-1 block text-sm font-medium"
             >
-              End Date
+              Challenge Length (days)
             </label>
             <input
-              id="end-date"
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              id="challenge-length"
+              type="number"
+              min="1"
+              max="365"
+              value={challengeLength}
+              onChange={(e) => setChallengeLength(Number(e.target.value))}
               className="w-full rounded-md border px-3 py-2"
               required
             />
@@ -226,22 +228,18 @@ export function CreateChallengeForm() {
                       htmlFor={`item-icon-${item.id}`}
                       className="mb-1 block text-sm font-medium"
                     >
-                      Icon
+                      Emoji
                     </label>
-                    <select
+                    <input
                       id={`item-icon-${item.id}`}
+                      type="text"
                       value={item.icon}
                       onChange={(e) =>
                         updateChallengeItem(item.id, 'icon', e.target.value)
                       }
                       className="w-full rounded-md border px-3 py-2"
-                    >
-                      {ICON_OPTIONS.map((icon) => (
-                        <option key={icon} value={icon}>
-                          {icon}
-                        </option>
-                      ))}
-                    </select>
+                      placeholder="Add an emoji"
+                    />
                   </div>
 
                   <div className="mt-3">

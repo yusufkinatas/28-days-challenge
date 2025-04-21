@@ -42,6 +42,8 @@ function Layout({ children }: { children: React.ReactNode }) {
     return ''
   }
 
+  const path = location.pathname
+  const isChallengeDetailsPage = path.startsWith('/challenges/')
   const pageTitle = getPageTitle()
 
   return (
@@ -59,14 +61,13 @@ function Layout({ children }: { children: React.ReactNode }) {
                 className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
               >
                 <User size={16} />
-                <span>{currentUser.email}</span>
+                <span>My Profile</span>
               </Link>
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 text-sm text-red-600 hover:text-red-800"
               >
                 <LogOut size={16} />
-                <span>Log Out</span>
               </button>
             </div>
           )}
@@ -74,7 +75,7 @@ function Layout({ children }: { children: React.ReactNode }) {
       </header>
 
       <main className="container mx-auto max-w-6xl px-4 py-8">
-        {currentUser && pageTitle && (
+        {!isChallengeDetailsPage && currentUser && pageTitle && (
           <div className="mb-6 flex items-center">
             <Link to="/" className="text-sm text-blue-600 hover:text-blue-800">
               Home
