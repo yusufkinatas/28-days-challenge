@@ -1,10 +1,7 @@
 import { BookOpen, Dumbbell, Moon, Utensils } from 'lucide-react'
+import { Challenge } from '../types'
 
-export const challenges: {
-  icon: React.ElementType
-  label: string
-  note?: string
-}[] = [
+export const challenges: Challenge[] = [
   {
     icon: Utensils,
     label: 'Eat well'
