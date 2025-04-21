@@ -1,4 +1,3 @@
-import { CheckSquare } from 'lucide-react'
 import { challenges } from './challanges'
 
 const days = [
@@ -25,9 +24,6 @@ export function WeeklyTracker({ weekNumber }: { weekNumber: number }) {
                   <challenge.icon className="mx-auto size-5" />
                 </th>
               ))}
-              <th className="border bg-gray-50 p-3 text-center">
-                <CheckSquare className="mx-auto size-5" />
-              </th>
             </tr>
           </thead>
           <tbody>
@@ -37,7 +33,6 @@ export function WeeklyTracker({ weekNumber }: { weekNumber: number }) {
                 {challenges.map((_, colIndex) => (
                   <td key={colIndex} className="border p-3"></td>
                 ))}
-                <td className="border p-3"></td>
               </tr>
             ))}
           </tbody>

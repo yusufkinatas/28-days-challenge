@@ -1,11 +1,4 @@
-import {
-  BookOpen,
-  Camera,
-  Dumbbell,
-  GlassWater,
-  Utensils,
-  Wine
-} from 'lucide-react'
+import { BookOpen, Dumbbell, Moon, Utensils } from 'lucide-react'
 
 export const challenges: {
   icon: React.ElementType
@@ -17,23 +10,17 @@ export const challenges: {
     label: 'Eat well'
   },
   {
-    icon: GlassWater,
-    label: '2 liters of water'
-  },
-  {
-    icon: Dumbbell,
-    label: '45 min workout'
-  },
-  {
-    icon: Wine,
-    label: 'No drink/smoke'
+    icon: Moon,
+    label: 'Read Quran',
+    note: 'At least 1 ayah'
   },
   {
     icon: BookOpen,
-    label: 'Read 10+ pages'
+    label: 'Read book',
+    note: 'At least 1 pages'
   },
   {
-    icon: Camera,
-    label: 'Progress photo'
+    icon: Dumbbell,
+    label: 'Daily workout'
   }
 ]
