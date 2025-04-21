@@ -254,120 +254,111 @@ export function ChallengeTracker() {
         </div>
       </div>
 
-      <div className="mb-12">
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                <th className="border bg-gray-50 p-3 text-left">Date</th>
+      <table className="w-full border-collapse">
+        <thead className="sticky top-0 z-10">
+          <tr>
+            <th className="border bg-gray-50 p-3 text-left">Date</th>
+            {challenge.challenges.map((item) => (
+              <th key={item.id} className="border bg-gray-50 p-3 text-center">
+                <span
+                  className="text-xl"
+                  role="img"
+                  aria-label="challenge icon"
+                >
+                  {item.icon}
+                </span>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {challengeDates.map((date) => {
+            const dateStr = date.toISOString().split('T')[0]
+            const isInteractive = isInteractiveDate(date)
+            const isTodayDate = isToday(date)
+
+            return (
+              <tr key={dateStr} className={isTodayDate ? 'bg-blue-50' : ''}>
+                <td
+                  className={`border p-3 font-medium ${
+                    isTodayDate
+                      ? 'text-blue-700'
+                      : isInteractive
+                        ? ''
+                        : 'text-gray-400'
+                  }`}
+                >
+                  {formatDate(date)}
+                </td>
                 {challenge.challenges.map((item) => (
-                  <th
-                    key={item.id}
-                    className="border bg-gray-50 p-3 text-center"
-                  >
-                    <span
-                      className="text-xl"
-                      role="img"
-                      aria-label="challenge icon"
-                    >
-                      {item.icon}
-                    </span>
-                  </th>
+                  <td key={item.id} className="border p-3">
+                    <div className="flex justify-center gap-2">
+                      {participants.map((participant) => (
+                        <div
+                          key={participant.uid}
+                          className={`group relative flex size-5 items-center justify-center rounded border ${
+                            participant.uid === currentUser?.uid &&
+                            isInteractive
+                              ? 'cursor-pointer hover:bg-gray-100'
+                              : 'cursor-not-allowed'
+                          } ${!isInteractive ? 'opacity-50' : ''}`}
+                          style={{
+                            borderColor: participant.color,
+                            backgroundColor: isCompleted(
+                              dateStr,
+                              item.id,
+                              participant.uid
+                            )
+                              ? participant.color
+                              : 'transparent'
+                          }}
+                          onClick={() => {
+                            if (
+                              participant.uid === currentUser?.uid &&
+                              isInteractive
+                            ) {
+                              handleToggleCompletion(dateStr, item.id)
+                            }
+                          }}
+                          title={
+                            !isInteractive
+                              ? "Only today and yesterday's activities can be tracked"
+                              : participant.displayName
+                          }
+                        >
+                          {isCompleted(dateStr, item.id, participant.uid) && (
+                            <Check className="size-4 text-white" />
+                          )}
+                          <div className="pointer-events-none absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
+                            {!isInteractive
+                              ? "Only today and yesterday's activities can be tracked"
+                              : participant.displayName}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </td>
                 ))}
               </tr>
-            </thead>
-            <tbody>
-              {challengeDates.map((date) => {
-                const dateStr = date.toISOString().split('T')[0]
-                const isInteractive = isInteractiveDate(date)
-                const isTodayDate = isToday(date)
+            )
+          })}
+        </tbody>
+      </table>
 
-                return (
-                  <tr key={dateStr} className={isTodayDate ? 'bg-blue-50' : ''}>
-                    <td
-                      className={`border p-3 font-medium ${
-                        isTodayDate
-                          ? 'text-blue-700'
-                          : isInteractive
-                            ? ''
-                            : 'text-gray-400'
-                      }`}
-                    >
-                      {formatDate(date)}
-                    </td>
-                    {challenge.challenges.map((item) => (
-                      <td key={item.id} className="border p-3">
-                        <div className="flex justify-center gap-2">
-                          {participants.map((participant) => (
-                            <div
-                              key={participant.uid}
-                              className={`group relative flex size-5 items-center justify-center rounded border ${
-                                participant.uid === currentUser?.uid &&
-                                isInteractive
-                                  ? 'cursor-pointer hover:bg-gray-100'
-                                  : 'cursor-not-allowed'
-                              } ${!isInteractive ? 'opacity-50' : ''}`}
-                              style={{
-                                borderColor: participant.color,
-                                backgroundColor: isCompleted(
-                                  dateStr,
-                                  item.id,
-                                  participant.uid
-                                )
-                                  ? participant.color
-                                  : 'transparent'
-                              }}
-                              onClick={() => {
-                                if (
-                                  participant.uid === currentUser?.uid &&
-                                  isInteractive
-                                ) {
-                                  handleToggleCompletion(dateStr, item.id)
-                                }
-                              }}
-                              title={
-                                !isInteractive
-                                  ? "Only today and yesterday's activities can be tracked"
-                                  : participant.displayName
-                              }
-                            >
-                              {isCompleted(
-                                dateStr,
-                                item.id,
-                                participant.uid
-                              ) && <Check className="size-4 text-white" />}
-                              <div className="pointer-events-none absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
-                                {!isInteractive
-                                  ? "Only today and yesterday's activities can be tracked"
-                                  : participant.displayName}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </td>
-                    ))}
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="mt-4 flex flex-wrap gap-6">
-          {participants.map((participant) => (
-            <div key={participant.uid} className="flex items-center gap-2">
-              <div
-                className="size-4 rounded-full"
-                style={{ backgroundColor: participant.color }}
-              ></div>
-              <span>
-                {participant.uid === currentUser?.uid
-                  ? 'You'
-                  : participant.displayName}
-              </span>
-            </div>
-          ))}
-        </div>
+      <div className="mt-4 flex flex-wrap gap-6">
+        {participants.map((participant) => (
+          <div key={participant.uid} className="flex items-center gap-2">
+            <div
+              className="size-4 rounded-full"
+              style={{ backgroundColor: participant.color }}
+            ></div>
+            <span>
+              {participant.uid === currentUser?.uid
+                ? 'You'
+                : participant.displayName}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   )
