@@ -73,7 +73,6 @@ export function ChallengeList() {
               className="block rounded-lg border bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
             >
               <h3 className="mb-2 text-xl font-bold">{challenge.title}</h3>
-              <p className="mb-4 text-gray-600">{challenge.description}</p>
 
               <div className="flex justify-between text-sm text-gray-500">
                 <span>

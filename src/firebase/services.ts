@@ -7,9 +7,10 @@ import {
   getDocs,
   query,
   updateDoc,
-  where
+  where,
+  setDoc
 } from 'firebase/firestore'
-import { CompletionRecord, FirebaseChallenge } from '../types'
+import { CompletionRecord, FirebaseChallenge, UserProfile } from '../types'
 import { auth, db } from './config'
 
 // Challenges Collection
@@ -106,8 +107,20 @@ export const addParticipantToChallenge = async (
   const challenge = await getChallenge(challengeId)
 
   if (!challenge) throw new Error('Challenge not found')
-  if (challenge.createdBy !== auth.currentUser.uid)
+
+  // Allow users to add themselves to a challenge
+  // Or allow the challenge creator to add participants
+  if (
+    participantId !== auth.currentUser.uid &&
+    challenge.createdBy !== auth.currentUser.uid
+  ) {
     throw new Error('Not authorized')
+  }
+
+  // Check if participant is already in the challenge
+  if (challenge.participants.includes(participantId)) {
+    throw new Error('User is already a participant in this challenge')
+  }
 
   const updatedParticipants = [...challenge.participants, participantId]
 
@@ -227,4 +240,85 @@ export const toggleCompletion = async (
       ...updatedCompletion
     }
   }
+}
+
+// User Profiles Collection
+// Get user profile
+export const getUserProfile = async (userId: string) => {
+  const docRef = doc(db, 'users', userId)
+  const docSnap = await getDoc(docRef)
+
+  if (docSnap.exists()) {
+    return {
+      uid: docSnap.id,
+      ...docSnap.data()
+    } as UserProfile
+  }
+
+  // If user profile doesn't exist, create a default one
+  if (auth.currentUser && userId === auth.currentUser.uid) {
+    const defaultProfile: UserProfile = {
+      uid: userId,
+      displayName: auth.currentUser.email?.split('@')[0] || 'User',
+      email: auth.currentUser.email || '',
+      color: getRandomColor()
+    }
+
+    await setDoc(docRef, {
+      displayName: defaultProfile.displayName,
+      email: defaultProfile.email,
+      color: defaultProfile.color
+    })
+
+    return defaultProfile
+  }
+
+  return null
+}
+
+// Get multiple user profiles
+export const getUserProfiles = async (userIds: string[]) => {
+  const profiles: UserProfile[] = []
+
+  // De-duplicate user IDs
+  const uniqueUserIds = [...new Set(userIds)]
+
+  for (const userId of uniqueUserIds) {
+    const profile = await getUserProfile(userId)
+    if (profile) {
+      profiles.push(profile)
+    }
+  }
+
+  return profiles
+}
+
+// Update user profile
+export const updateUserProfile = async (profile: Partial<UserProfile>) => {
+  if (!auth.currentUser) throw new Error('User not authenticated')
+
+  const userId = auth.currentUser.uid
+  const docRef = doc(db, 'users', userId)
+
+  await updateDoc(docRef, profile)
+
+  return getUserProfile(userId)
+}
+
+// Helper function to generate a random color
+function getRandomColor() {
+  const colors = [
+    '#4f46e5', // indigo
+    '#ef4444', // red
+    '#16a34a', // green
+    '#f59e0b', // amber
+    '#06b6d4', // cyan
+    '#8b5cf6', // violet
+    '#ec4899', // pink
+    '#6366f1', // blue
+    '#f97316', // orange
+    '#14b8a6' // teal
+  ]
+
+  return colors[Math.floor(Math.random() * colors.length)]
 }

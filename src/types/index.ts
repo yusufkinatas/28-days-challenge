@@ -13,11 +13,17 @@ export interface Challenge {
   note?: string
 }
 
+export interface UserProfile {
+  uid: string
+  displayName: string
+  email: string
+  color: string
+}
+
 // Firebase data models
 export interface FirebaseChallenge {
   id?: string
   title: string
-  description?: string
   createdBy: string
   createdAt: number
   startDate: number

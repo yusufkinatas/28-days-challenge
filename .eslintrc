@@ -27,6 +27,7 @@
   },
   "plugins": ["react", "react-hooks", "@typescript-eslint", "tailwindcss"],
   "rules": {
+    "react/no-unescaped-entities": "off",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "react/prop-types": "off",

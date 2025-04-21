@@ -1,6 +1,6 @@
+import { PlusCircle, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PlusCircle, Trash2 } from 'lucide-react'
 import { createChallenge } from '../../firebase/services'
 import { ChallengeItem, FirebaseChallenge } from '../../types'
 
@@ -24,7 +24,6 @@ export function CreateChallengeForm() {
   const navigate = useNavigate()
 
   const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -103,7 +102,6 @@ export function CreateChallengeForm() {
 
       const challengeData: Omit<FirebaseChallenge, 'id' | 'createdAt'> = {
         title,
-        description,
         startDate: startTimestamp,
         endDate: endTimestamp,
         createdBy: '', // Will be set by the service
@@ -144,23 +142,6 @@ export function CreateChallengeForm() {
             className="w-full rounded-md border px-3 py-2"
             placeholder="28 Days Challenge"
             required
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="description"
-            className="mb-1 block text-sm font-medium"
-          >
-            Description
-          </label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full rounded-md border px-3 py-2"
-            placeholder="Describe your challenge..."
-            rows={3}
           />
         </div>
 
