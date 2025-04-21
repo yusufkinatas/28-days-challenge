@@ -54,7 +54,7 @@ export function ChallengeList() {
       {challenges.length === 0 ? (
         <div className="rounded-lg bg-gray-50 py-8 text-center">
           <p className="mb-4 text-gray-600">
-            You don't have any challenges yet.
+            You do not have any challenges yet.
           </p>
           <Link
             to="/challenges/new"
