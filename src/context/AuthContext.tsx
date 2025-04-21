@@ -4,15 +4,17 @@ import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut
 } from 'firebase/auth'
-import { auth } from '../firebase/config'
+import { auth, googleProvider } from '../firebase/config'
 
 interface AuthContextType {
   currentUser: User | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string) => Promise<void>
+  loginWithGoogle: () => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -59,6 +61,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     )
   }
 
+  const loginWithGoogle = async () => {
+    return signInWithPopup(auth, googleProvider).then((result) => {
+      // Google sign-in successful
+      setCurrentUser(result.user)
+    })
+  }
+
   const logout = async () => {
     return signOut(auth).then(() => {
       setCurrentUser(null)
@@ -70,6 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     loading,
     login,
     register,
+    loginWithGoogle,
     logout
   }
 
