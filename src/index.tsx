@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import 'tailwindcss/tailwind.css'
 
 import './firebase/config' // Initialize Firebase
-import App from './App-2'
+import App from './App'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
