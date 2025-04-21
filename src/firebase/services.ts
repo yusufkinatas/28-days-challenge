@@ -1,19 +1,16 @@
 import {
-  collection,
   addDoc,
-  updateDoc,
+  collection,
   deleteDoc,
   doc,
-  getDocs,
   getDoc,
+  getDocs,
   query,
-  where,
-  serverTimestamp,
-  Timestamp,
-  setDoc
+  updateDoc,
+  where
 } from 'firebase/firestore'
-import { auth, db } from './config'
 import { CompletionRecord, FirebaseChallenge } from '../types'
+import { auth, db } from './config'
 
 // Challenges Collection
 const challengesCollection = collection(db, 'challenges')
