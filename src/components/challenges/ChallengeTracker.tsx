@@ -134,6 +134,8 @@ export function ChallengeTracker() {
 
   const copyInviteLink = () => {
     const fullUrl = `${window.location.origin}/join/${challengeId}`
+    // Store the invite link in localStorage
+    localStorage.setItem('challengeInviteLink', fullUrl)
     navigator.clipboard.writeText(fullUrl).then(
       () => {
         setCopied(true)

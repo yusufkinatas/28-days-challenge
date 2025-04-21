@@ -35,6 +35,18 @@ export function RegisterForm() {
       setError('')
       setIsLoading(true)
       await register(email, password)
+
+      // Check for stored invite link
+      const inviteLink = localStorage.getItem('challengeInviteLink')
+      if (inviteLink) {
+        // Extract challengeId from the invite link
+        const challengeId = inviteLink.split('/join/')[1]
+        if (challengeId) {
+          navigate(`/protected-join/${challengeId}`)
+          return
+        }
+      }
+
       navigate('/')
     } catch (err) {
       setError('Failed to create an account')
@@ -49,6 +61,18 @@ export function RegisterForm() {
       setError('')
       setIsGoogleLoading(true)
       await loginWithGoogle()
+
+      // Check for stored invite link
+      const inviteLink = localStorage.getItem('challengeInviteLink')
+      if (inviteLink) {
+        // Extract challengeId from the invite link
+        const challengeId = inviteLink.split('/join/')[1]
+        if (challengeId) {
+          navigate(`/protected-join/${challengeId}`)
+          return
+        }
+      }
+
       navigate('/')
     } catch (err) {
       setError('Failed to sign in with Google.')

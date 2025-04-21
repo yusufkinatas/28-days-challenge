@@ -4,7 +4,9 @@ import {
   Route,
   Navigate,
   Link,
-  useLocation
+  useLocation,
+  useParams,
+  useNavigate
 } from 'react-router-dom'
 import { ChallengeList } from './components/challenges/ChallengeList'
 import { CreateChallengeForm } from './components/challenges/CreateChallengeForm'
@@ -14,7 +16,8 @@ import { JoinChallenge } from './components/challenges/JoinChallenge'
 import { UserProfileEditor } from './components/profile/UserProfileEditor'
 import { AuthTabs } from './components/auth/AuthTabs'
 import { AuthProvider, useAuth } from './context/AuthContext'
-import { User, LogOut } from 'lucide-react'
+import { User, LogOut, Clock } from 'lucide-react'
+import { useEffect } from 'react'
 
 // Layout with navigation
 function Layout({ children }: { children: React.ReactNode }) {
@@ -95,6 +98,19 @@ function Layout({ children }: { children: React.ReactNode }) {
 // Protected route component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { currentUser, loading } = useAuth()
+  const location = useLocation()
+
+  // Save join challenge link to localStorage
+  useEffect(() => {
+    const path = location.pathname
+    if (path.startsWith('/join/') && !currentUser) {
+      const challengeId = path.split('/join/')[1]
+      if (challengeId) {
+        const fullUrl = `${window.location.origin}/join/${challengeId}`
+        localStorage.setItem('challengeInviteLink', fullUrl)
+      }
+    }
+  }, [location.pathname, currentUser])
 
   if (loading) {
     return <div className="py-12 text-center">Loading...</div>
@@ -105,6 +121,36 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   return <>{children}</>
+}
+
+// Add this component before the App component
+function PublicJoinChallenge() {
+  const { challengeId } = useParams<{ challengeId: string }>()
+  const { currentUser } = useAuth()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    // If there's a challengeId, save it to localStorage
+    if (challengeId) {
+      const fullUrl = `${window.location.origin}/join/${challengeId}`
+      localStorage.setItem('challengeInviteLink', fullUrl)
+    }
+
+    // If user is logged in, redirect to the protected join page
+    if (currentUser) {
+      navigate(`/protected-join/${challengeId}`)
+    } else {
+      // Otherwise redirect to login
+      navigate('/login')
+    }
+  }, [challengeId, currentUser, navigate])
+
+  return (
+    <div className="py-8 text-center">
+      <Clock className="mx-auto mb-4 size-12 animate-pulse text-blue-600" />
+      <p>Processing your invitation...</p>
+    </div>
+  )
 }
 
 function App() {
@@ -176,8 +222,10 @@ function App() {
             }
           />
 
+          <Route path="/join/:challengeId" element={<PublicJoinChallenge />} />
+
           <Route
-            path="/join/:challengeId"
+            path="/protected-join/:challengeId"
             element={
               <ProtectedRoute>
                 <Layout>
