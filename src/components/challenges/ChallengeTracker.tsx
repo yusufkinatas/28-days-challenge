@@ -1,5 +1,5 @@
 import { Check, CheckCircle, Copy } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import {
@@ -20,6 +20,7 @@ export function ChallengeTracker() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const todayRowRef = useRef<HTMLTableRowElement>(null)
 
   useEffect(() => {
     const fetchChallengeData = async () => {
@@ -63,6 +64,16 @@ export function ChallengeTracker() {
 
     fetchChallengeData()
   }, [challengeId, currentUser])
+
+  useEffect(() => {
+    // Scroll today's row into view after content has loaded
+    if (!loading && todayRowRef.current) {
+      todayRowRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      })
+    }
+  }, [loading])
 
   const handleToggleCompletion = async (day: string, itemId: string) => {
     if (!challengeId || !currentUser || !challenge) return
@@ -202,6 +213,22 @@ export function ChallengeTracker() {
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-bold">{challenge.title}</h1>
 
+        <div className="mb-4 flex flex-wrap gap-6">
+          {participants.map((participant) => (
+            <div key={participant.uid} className="flex items-center gap-2">
+              <div
+                className="size-4 rounded-full"
+                style={{ backgroundColor: participant.color }}
+              ></div>
+              <span>
+                {participant.uid === currentUser?.uid
+                  ? 'You'
+                  : participant.displayName}
+              </span>
+            </div>
+          ))}
+        </div>
+
         <div className="mt-4 flex items-center justify-between">
           {challenge.createdBy === currentUser?.uid && (
             <div className="flex items-center gap-4">
@@ -230,8 +257,8 @@ export function ChallengeTracker() {
 
       {/* Challenge Items Legend */}
       <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
-        <h2 className="mb-3 text-lg font-semibold">Challenge Items</h2>
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <h2 className="mb-3 text-lg font-semibold">Challenge Rules</h2>
+        <div className="flex flex-col gap-3">
           {challenge.challenges.map((item) => (
             <div key={item.id} className="flex items-start gap-2">
               <div className="shrink-0 pt-0.5">
@@ -278,7 +305,11 @@ export function ChallengeTracker() {
             const isTodayDate = isToday(date)
 
             return (
-              <tr key={dateStr} className={isTodayDate ? 'bg-blue-50' : ''}>
+              <tr
+                key={dateStr}
+                className={isTodayDate ? 'bg-blue-50' : ''}
+                ref={isTodayDate ? todayRowRef : undefined}
+              >
                 <td
                   className={`border p-3 font-medium ${
                     isTodayDate
@@ -344,22 +375,6 @@ export function ChallengeTracker() {
           })}
         </tbody>
       </table>
-
-      <div className="mt-4 flex flex-wrap gap-6">
-        {participants.map((participant) => (
-          <div key={participant.uid} className="flex items-center gap-2">
-            <div
-              className="size-4 rounded-full"
-              style={{ backgroundColor: participant.color }}
-            ></div>
-            <span>
-              {participant.uid === currentUser?.uid
-                ? 'You'
-                : participant.displayName}
-            </span>
-          </div>
-        ))}
-      </div>
     </div>
   )
 }
