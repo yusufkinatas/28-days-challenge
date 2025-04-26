@@ -82,7 +82,7 @@ export function ChallengeTracker() {
       const completionData = {
         challengeId,
         userId: currentUser.uid,
-        day,
+        day, // already in YYYY-MM-DD UTC format
         itemId,
         completed: false // Will be toggled in the service
       }
@@ -150,22 +150,20 @@ export function ChallengeTracker() {
   // Check if a date is today
   const isToday = (date: Date) => {
     const today = new Date()
-    return (
-      date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear()
-    )
+    // Convert both dates to UTC date strings (YYYY-MM-DD format)
+    const todayUTC = today.toISOString().split('T')[0]
+    const dateUTC = date.toISOString().split('T')[0]
+    return todayUTC === dateUTC
   }
 
   // Check if a date is yesterday
   const isYesterday = (date: Date) => {
     const yesterday = new Date()
     yesterday.setDate(yesterday.getDate() - 1)
-    return (
-      date.getDate() === yesterday.getDate() &&
-      date.getMonth() === yesterday.getMonth() &&
-      date.getFullYear() === yesterday.getFullYear()
-    )
+    // Convert both dates to UTC date strings (YYYY-MM-DD format)
+    const yesterdayUTC = yesterday.toISOString().split('T')[0]
+    const dateUTC = date.toISOString().split('T')[0]
+    return yesterdayUTC === dateUTC
   }
 
   // Check if a date is interactive (today or yesterday)
@@ -190,6 +188,10 @@ export function ChallengeTracker() {
     const dates: Date[] = []
     const start = new Date(challenge.startDate)
     const end = new Date(challenge.endDate)
+
+    // Set both dates to start of day in UTC
+    start.setUTCHours(0, 0, 0, 0)
+    end.setUTCHours(0, 0, 0, 0)
 
     const current = new Date(start)
     while (current <= end) {

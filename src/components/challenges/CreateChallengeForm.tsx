@@ -9,7 +9,11 @@ const DEFAULT_EMOJI = '📖'
 
 // Helper function to format date to YYYY-MM-DD for input[type="date"]
 const formatDateForInput = (date: Date): string => {
-  return date.toISOString().split('T')[0]
+  // Get UTC year, month, and day to avoid timezone issues
+  const year = date.getUTCFullYear()
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0') // months are 0-based
+  const day = String(date.getUTCDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 export function CreateChallengeForm() {
@@ -80,15 +84,14 @@ export function CreateChallengeForm() {
       return
     }
 
-    // Parse the start date
-    const parsedStartDate = new Date(startDate)
-    // Reset to beginning of day
-    parsedStartDate.setHours(0, 0, 0, 0)
+    // Parse the start date and use UTC to avoid timezone issues
+    const parsedStartDate = new Date(startDate + 'T00:00:00Z')
+    // Store the timestamp in UTC
     const startTimestamp = parsedStartDate.getTime()
 
     // Calculate end date by adding challengeLength days to start date
     const endDate = new Date(startTimestamp)
-    endDate.setDate(endDate.getDate() + challengeLength - 1) // -1 because the start day is included
+    endDate.setUTCDate(endDate.getUTCDate() + challengeLength - 1) // -1 because the start day is included
     const endTimestamp = endDate.getTime()
 
     if (challengeItems.some((item) => !item.label)) {
