@@ -1,5 +1,4 @@
-import { Check, CheckCircle, Copy } from 'lucide-react'
-import { useEffect, useState, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import {
@@ -9,6 +8,9 @@ import {
   toggleCompletion
 } from '../../firebase/services'
 import { CompletionRecord, FirebaseChallenge, UserProfile } from '../../types'
+import { ChallengeHeader } from './ChallengeHeader'
+import { ChallengeRules } from './ChallengeRules'
+import { ChallengeTable } from './ChallengeTable'
 
 export function ChallengeTracker() {
   const { challengeId } = useParams<{ challengeId: string }>()
@@ -20,7 +22,6 @@ export function ChallengeTracker() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
-  const todayRowRef = useRef<HTMLTableRowElement>(null)
 
   useEffect(() => {
     const fetchChallengeData = async () => {
@@ -65,16 +66,6 @@ export function ChallengeTracker() {
     fetchChallengeData()
   }, [challengeId, currentUser])
 
-  useEffect(() => {
-    // Scroll today's row into view after content has loaded
-    if (!loading && todayRowRef.current) {
-      todayRowRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      })
-    }
-  }, [loading])
-
   const handleToggleCompletion = async (day: string, itemId: string) => {
     if (!challengeId || !currentUser || !challenge) return
 
@@ -118,20 +109,6 @@ export function ChallengeTracker() {
     }
   }
 
-  const isCompleted = (
-    day: string,
-    itemId: string,
-    userId: string = currentUser?.uid || ''
-  ) => {
-    return completions.some(
-      (c) =>
-        c.day === day &&
-        c.itemId === itemId &&
-        c.userId === userId &&
-        c.completed
-    )
-  }
-
   const copyInviteLink = () => {
     const fullUrl = `${window.location.origin}/join/${challengeId}`
     // Store the invite link in localStorage
@@ -147,30 +124,6 @@ export function ChallengeTracker() {
     )
   }
 
-  // Check if a date is today
-  const isToday = (date: Date) => {
-    const today = new Date()
-    // Convert both dates to UTC date strings (YYYY-MM-DD format)
-    const todayUTC = today.toISOString().split('T')[0]
-    const dateUTC = date.toISOString().split('T')[0]
-    return todayUTC === dateUTC
-  }
-
-  // Check if a date is yesterday
-  const isYesterday = (date: Date) => {
-    const yesterday = new Date()
-    yesterday.setDate(yesterday.getDate() - 1)
-    // Convert both dates to UTC date strings (YYYY-MM-DD format)
-    const yesterdayUTC = yesterday.toISOString().split('T')[0]
-    const dateUTC = date.toISOString().split('T')[0]
-    return yesterdayUTC === dateUTC
-  }
-
-  // Check if a date is interactive (today or yesterday)
-  const isInteractiveDate = (date: Date) => {
-    return isToday(date) || isYesterday(date)
-  }
-
   if (loading) {
     return <div className="py-8 text-center">Loading challenge...</div>
   }
@@ -183,202 +136,25 @@ export function ChallengeTracker() {
     )
   }
 
-  // Generate dates array from challenge start date to end date
-  const generateChallengeDates = () => {
-    const dates: Date[] = []
-    const start = new Date(challenge.startDate)
-    const end = new Date(challenge.endDate)
-
-    // Set both dates to start of day in UTC
-    start.setUTCHours(0, 0, 0, 0)
-    end.setUTCHours(0, 0, 0, 0)
-
-    const current = new Date(start)
-    while (current <= end) {
-      dates.push(new Date(current))
-      current.setDate(current.getDate() + 1)
-    }
-
-    return dates
-  }
-
-  const challengeDates = generateChallengeDates()
-
-  // Format date as "13 April"
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'long'
-    })
-  }
-
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="mb-2 text-3xl font-bold">{challenge.title}</h1>
+      <ChallengeHeader
+        challenge={challenge}
+        participants={participants}
+        currentUser={currentUser}
+        onCopyInviteLink={copyInviteLink}
+        copied={copied}
+      />
 
-        <div className="mb-4 flex flex-wrap gap-6">
-          {participants.map((participant) => (
-            <div key={participant.uid} className="flex items-center gap-2">
-              <div
-                className="size-4 rounded-full"
-                style={{ backgroundColor: participant.color }}
-              ></div>
-              <span>
-                {participant.uid === currentUser?.uid
-                  ? 'You'
-                  : participant.displayName}
-              </span>
-            </div>
-          ))}
-        </div>
+      <ChallengeRules challenge={challenge} />
 
-        <div className="mt-4 flex items-center justify-between">
-          {challenge.createdBy === currentUser?.uid && (
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <button
-                  onClick={copyInviteLink}
-                  className="flex items-center gap-2 rounded-md bg-green-600 px-3 py-1 text-sm text-white hover:bg-green-700"
-                >
-                  {copied ? (
-                    <>
-                      <CheckCircle size={16} />
-                      <span>Copied!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy size={16} />
-                      <span>Copy Invite Link</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Challenge Items Legend */}
-      <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
-        <h2 className="mb-3 text-lg font-semibold">Challenge Rules</h2>
-        <div className="flex flex-col gap-3">
-          {challenge.challenges.map((item) => (
-            <div key={item.id} className="flex items-start gap-2">
-              <div className="shrink-0 pt-0.5">
-                <span
-                  className="text-xl"
-                  role="img"
-                  aria-label="challenge icon"
-                >
-                  {item.icon}
-                </span>
-              </div>
-              <div>
-                <div className="font-medium">{item.label}</div>
-                {item.note && (
-                  <div className="text-sm text-gray-600">{item.note}</div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <table className="w-full border-collapse">
-        <thead className="sticky top-0 z-10 bg-white">
-          <tr>
-            <th className="border  p-3 text-left">Date</th>
-            {challenge.challenges.map((item) => (
-              <th key={item.id} className="border p-3 text-center">
-                <span
-                  className="text-xl"
-                  role="img"
-                  aria-label="challenge icon"
-                >
-                  {item.icon}
-                </span>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {challengeDates.map((date) => {
-            const dateStr = date.toISOString().split('T')[0]
-            const isInteractive = isInteractiveDate(date)
-            const isTodayDate = isToday(date)
-
-            return (
-              <tr
-                key={dateStr}
-                className={isTodayDate ? 'bg-blue-50' : ''}
-                ref={isTodayDate ? todayRowRef : undefined}
-              >
-                <td
-                  className={`border p-3 font-medium ${
-                    isTodayDate
-                      ? 'text-blue-700'
-                      : isInteractive
-                        ? ''
-                        : 'text-gray-400'
-                  }`}
-                >
-                  {formatDate(date)}
-                </td>
-                {challenge.challenges.map((item) => (
-                  <td key={item.id} className="border p-3">
-                    <div className="flex justify-center gap-2">
-                      {participants.map((participant) => (
-                        <div
-                          key={participant.uid}
-                          className={`group relative flex size-5 items-center justify-center rounded border ${
-                            participant.uid === currentUser?.uid &&
-                            isInteractive
-                              ? 'cursor-pointer hover:bg-gray-100'
-                              : 'cursor-not-allowed'
-                          } ${!isInteractive ? 'opacity-50' : ''}`}
-                          style={{
-                            borderColor: participant.color,
-                            backgroundColor: isCompleted(
-                              dateStr,
-                              item.id,
-                              participant.uid
-                            )
-                              ? participant.color
-                              : 'transparent'
-                          }}
-                          onClick={() => {
-                            if (
-                              participant.uid === currentUser?.uid &&
-                              isInteractive
-                            ) {
-                              handleToggleCompletion(dateStr, item.id)
-                            }
-                          }}
-                          title={
-                            !isInteractive
-                              ? "Only today and yesterday's activities can be tracked"
-                              : participant.displayName
-                          }
-                        >
-                          {isCompleted(dateStr, item.id, participant.uid) && (
-                            <Check className="size-4 text-white" />
-                          )}
-                          <div className="pointer-events-none absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
-                            {!isInteractive
-                              ? "Only today and yesterday's activities can be tracked"
-                              : participant.displayName}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-                ))}
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+      <ChallengeTable
+        challenge={challenge}
+        participants={participants}
+        currentUser={currentUser}
+        completions={completions}
+        onToggleCompletion={handleToggleCompletion}
+      />
     </div>
   )
 }
