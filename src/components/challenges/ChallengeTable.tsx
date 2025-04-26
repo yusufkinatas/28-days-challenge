@@ -63,12 +63,11 @@ export function ChallengeTable() {
 
   const challengeDates = generateChallengeDates()
 
-  // Format date as "13 April"
+  // Format date as "13.4" instead of "13 April"
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'long'
-    })
+    const day = date.getDate()
+    const month = date.getMonth() + 1 // getMonth() is 0-indexed
+    return `${day}.${month}`
   }
 
   return (
