@@ -77,7 +77,7 @@ function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="container mx-auto max-w-6xl px-4 py-8">
+      <main className="container mx-auto max-w-6xl p-4">
         {!isChallengeDetailsPage && currentUser && pageTitle && (
           <div className="mb-6 flex items-center">
             <Link to="/" className="text-sm text-blue-600 hover:text-blue-800">

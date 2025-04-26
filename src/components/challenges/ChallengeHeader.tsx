@@ -12,9 +12,9 @@ export function ChallengeHeader() {
   const [rulesOpen, setRulesOpen] = useState(false)
 
   return (
-    <div className="mb-8">
+    <div>
       <div className="mb-2 flex items-center gap-2">
-        <h1 className="text-3xl font-bold">{challenge?.title}</h1>
+        <h1 className="text-2xl font-bold">{challenge?.title}</h1>
         {challenge?.createdBy === currentUser?.uid && (
           <button
             onClick={copyInviteLinkHandler}
