@@ -1,6 +1,5 @@
 import { ChallengeProvider, useChallengeContext } from './ChallengeContext'
 import { ChallengeHeader } from './ChallengeHeader'
-import { ChallengeRules } from './ChallengeRules'
 import { ChallengeTable } from './ChallengeTable'
 
 function ChallengeContent() {
@@ -21,7 +20,6 @@ function ChallengeContent() {
   return (
     <div>
       <ChallengeHeader />
-      <ChallengeRules />
       <ChallengeTable />
     </div>
   )
