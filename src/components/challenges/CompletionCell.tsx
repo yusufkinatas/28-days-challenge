@@ -29,31 +29,52 @@ export function CompletionCell({
 
   return (
     <div className="flex justify-center gap-2">
-      {participants.map((participant) => (
-        <div
-          key={participant.uid}
-          className={`group relative flex size-5 items-center justify-center rounded border ${
-            participant.uid === currentUser?.uid && isInteractive
-              ? 'cursor-pointer hover:bg-gray-100'
-              : 'cursor-not-allowed'
-          } ${!isInteractive ? 'opacity-50' : ''}`}
-          style={{
-            borderColor: participant.color,
-            backgroundColor: isCompleted(participant.uid)
-              ? participant.color
-              : 'transparent'
-          }}
-          onClick={() => {
-            if (participant.uid === currentUser?.uid && isInteractive) {
-              toggleCompletionHandler(dateStr, itemId)
-            }
-          }}
-        >
-          {isCompleted(participant.uid) && (
-            <Check className="size-4 text-white" />
-          )}
-        </div>
-      ))}
+      {participants.map((participant) => {
+        const isCurrentUser = participant.uid === currentUser?.uid
+        const canToggle = isCurrentUser && isInteractive
+        const completed = isCompleted(participant.uid)
+
+        // Non-interactive date (past) - show check icon only
+        if (!isInteractive) {
+          return (
+            <div
+              key={participant.uid}
+              className="group relative flex size-6 items-center justify-center"
+            >
+              {completed && (
+                <Check
+                  style={{ color: participant.color }}
+                  className="size-6"
+                />
+              )}
+            </div>
+          )
+        }
+
+        // Interactive date (today/yesterday) - show box with background color
+        return (
+          <div
+            key={participant.uid}
+            className={`group relative flex size-5 items-center justify-center rounded border ${
+              canToggle
+                ? 'cursor-pointer hover:bg-gray-100'
+                : 'cursor-not-allowed'
+            }`}
+            style={{
+              opacity: canToggle ? 1 : 0.5,
+              borderColor: participant.color,
+              backgroundColor: completed ? participant.color : 'transparent'
+            }}
+            onClick={() => {
+              if (canToggle) {
+                toggleCompletionHandler(dateStr, itemId)
+              }
+            }}
+          >
+            {completed && <Check className="size-4 text-white" />}
+          </div>
+        )
+      })}
     </div>
   )
 }
