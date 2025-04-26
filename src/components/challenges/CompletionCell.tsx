@@ -48,20 +48,10 @@ export function CompletionCell({
               toggleCompletionHandler(dateStr, itemId)
             }
           }}
-          title={
-            !isInteractive
-              ? "Only today and yesterday's activities can be tracked"
-              : participant.displayName
-          }
         >
           {isCompleted(participant.uid) && (
             <Check className="size-4 text-white" />
           )}
-          <div className="pointer-events-none absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
-            {!isInteractive
-              ? "Only today and yesterday's activities can be tracked"
-              : participant.displayName}
-          </div>
         </div>
       ))}
     </div>
