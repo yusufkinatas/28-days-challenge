@@ -1,24 +1,22 @@
 import { useEffect, useRef } from 'react'
-import { User } from 'firebase/auth'
-import { CompletionRecord, FirebaseChallenge, UserProfile } from '../../types'
 import { CompletionCell } from './CompletionCell'
+import { useChallengeContext } from './ChallengeContext'
 
-type ChallengeTableProps = {
-  challenge: FirebaseChallenge
-  participants: UserProfile[]
-  currentUser: User | null
-  completions: CompletionRecord[]
-  onToggleCompletion: (day: string, itemId: string) => void
-}
-
-export function ChallengeTable({
-  challenge,
-  participants,
-  currentUser,
-  completions,
-  onToggleCompletion
-}: ChallengeTableProps) {
+export function ChallengeTable() {
+  const { challenge } = useChallengeContext()
   const todayRowRef = useRef<HTMLTableRowElement>(null)
+
+  useEffect(() => {
+    // Scroll today's row into view after content has loaded
+    if (todayRowRef.current) {
+      todayRowRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      })
+    }
+  }, [])
+
+  if (!challenge) return null
 
   // Check if a date is today
   const isToday = (date: Date) => {
@@ -73,16 +71,6 @@ export function ChallengeTable({
     })
   }
 
-  useEffect(() => {
-    // Scroll today's row into view after content has loaded
-    if (todayRowRef.current) {
-      todayRowRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      })
-    }
-  }, [])
-
   return (
     <table className="w-full border-collapse">
       <thead className="sticky top-0 z-10 bg-white">
@@ -125,11 +113,7 @@ export function ChallengeTable({
                   <CompletionCell
                     dateStr={dateStr}
                     itemId={item.id}
-                    participants={participants}
-                    currentUser={currentUser}
                     isInteractive={isInteractive}
-                    completions={completions}
-                    onToggleCompletion={onToggleCompletion}
                   />
                 </td>
               ))}

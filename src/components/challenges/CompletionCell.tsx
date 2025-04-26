@@ -1,26 +1,22 @@
 import { Check } from 'lucide-react'
-import { User } from 'firebase/auth'
-import { CompletionRecord, UserProfile } from '../../types'
+import { useAuth } from '../../context/AuthContext'
+import { useChallengeContext } from './ChallengeContext'
 
 type CompletionCellProps = {
   dateStr: string
   itemId: string
-  participants: UserProfile[]
-  currentUser: User | null
   isInteractive: boolean
-  completions: CompletionRecord[]
-  onToggleCompletion: (day: string, itemId: string) => void
 }
 
 export function CompletionCell({
   dateStr,
   itemId,
-  participants,
-  currentUser,
-  isInteractive,
-  completions,
-  onToggleCompletion
+  isInteractive
 }: CompletionCellProps) {
+  const { participants, completions, toggleCompletionHandler } =
+    useChallengeContext()
+  const { currentUser } = useAuth()
+
   const isCompleted = (userId: string) => {
     return completions.some(
       (c) =>
@@ -49,7 +45,7 @@ export function CompletionCell({
           }}
           onClick={() => {
             if (participant.uid === currentUser?.uid && isInteractive) {
-              onToggleCompletion(dateStr, itemId)
+              toggleCompletionHandler(dateStr, itemId)
             }
           }}
           title={

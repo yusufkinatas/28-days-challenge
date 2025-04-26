@@ -1,25 +1,15 @@
 import { CheckCircle, Copy } from 'lucide-react'
-import { User } from 'firebase/auth'
-import { FirebaseChallenge, UserProfile } from '../../types'
+import { useAuth } from '../../context/AuthContext'
+import { useChallengeContext } from './ChallengeContext'
 
-type ChallengeHeaderProps = {
-  challenge: FirebaseChallenge
-  participants: UserProfile[]
-  currentUser: User | null
-  onCopyInviteLink: () => void
-  copied: boolean
-}
+export function ChallengeHeader() {
+  const { challenge, participants, copied, copyInviteLinkHandler } =
+    useChallengeContext()
+  const { currentUser } = useAuth()
 
-export function ChallengeHeader({
-  challenge,
-  participants,
-  currentUser,
-  onCopyInviteLink,
-  copied
-}: ChallengeHeaderProps) {
   return (
     <div className="mb-8">
-      <h1 className="mb-2 text-3xl font-bold">{challenge.title}</h1>
+      <h1 className="mb-2 text-3xl font-bold">{challenge?.title}</h1>
 
       <div className="mb-4 flex flex-wrap gap-6">
         {participants.map((participant) => (
@@ -38,11 +28,11 @@ export function ChallengeHeader({
       </div>
 
       <div className="mt-4 flex items-center justify-between">
-        {challenge.createdBy === currentUser?.uid && (
+        {challenge?.createdBy === currentUser?.uid && (
           <div className="flex items-center gap-4">
             <div className="relative">
               <button
-                onClick={onCopyInviteLink}
+                onClick={copyInviteLinkHandler}
                 className="flex items-center gap-2 rounded-md bg-green-600 px-3 py-1 text-sm text-white hover:bg-green-700"
               >
                 {copied ? (

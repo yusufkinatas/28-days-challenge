@@ -1,10 +1,10 @@
-import { FirebaseChallenge } from '../../types'
+import { useChallengeContext } from './ChallengeContext'
 
-type ChallengeRulesProps = {
-  challenge: FirebaseChallenge
-}
+export function ChallengeRules() {
+  const { challenge } = useChallengeContext()
 
-export function ChallengeRules({ challenge }: ChallengeRulesProps) {
+  if (!challenge) return null
+
   return (
     <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
       <h2 className="mb-3 text-lg font-semibold">Challenge Rules</h2>
