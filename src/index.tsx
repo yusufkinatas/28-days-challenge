@@ -1,14 +1,22 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import 'tailwindcss/tailwind.css'
+import React, { useEffect } from 'react';
+import ReactDOM from 'react-dom';
+import { showMotivationalNotification } from './notifications';
 
-import './firebase/config' // Initialize Firebase
-import App from './App'
+function App() {
+  useEffect(() => {
+    const interval = setInterval(() => {
+      showMotivationalNotification();
+    }, 3600000); // Show notification every hour
 
-const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
+    return () => clearInterval(interval);
+  }, []);
 
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-)
+  return (
+    <div>
+      <h1>Welcome to the 28 Days Challenge!</h1>
+      <p>Track your progress and build habits together.</p>
+    </div>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
