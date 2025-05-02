@@ -16,8 +16,11 @@ import { JoinChallenge } from './components/challenges/JoinChallenge'
 import { UserProfileEditor } from './components/profile/UserProfileEditor'
 import { AuthTabs } from './components/auth/AuthTabs'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { NotificationProvider } from './context/NotificationContext'
+import { NotificationContainer } from './components/ui/NotificationContainer'
 import { User, LogOut, Clock } from 'lucide-react'
 import { useEffect } from 'react'
+import { initSoundService } from './utils/soundService'
 
 // Layout with navigation
 function Layout({ children }: { children: React.ReactNode }) {
@@ -154,90 +157,98 @@ function PublicJoinChallenge() {
 }
 
 function App() {
+  // Initialize sound service on app load
+  useEffect(() => {
+    initSoundService()
+  }, [])
+
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          <Route
-            path="/login"
-            element={
-              <Layout>
-                <AuthTabs />
-              </Layout>
-            }
-          />
-
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
+      <NotificationProvider>
+        <Router>
+          <NotificationContainer />
+          <Routes>
+            <Route
+              path="/login"
+              element={
                 <Layout>
-                  <ChallengeList />
+                  <AuthTabs />
                 </Layout>
-              </ProtectedRoute>
-            }
-          />
+              }
+            />
 
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <UserProfileEditor />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ChallengeList />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/challenges/new"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <CreateChallengeForm />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <UserProfileEditor />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/challenges/:challengeId"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <ChallengeTracker />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/challenges/new"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <CreateChallengeForm />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/challenges/:challengeId/edit"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <EditChallengeForm />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/challenges/:challengeId"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ChallengeTracker />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-          <Route path="/join/:challengeId" element={<PublicJoinChallenge />} />
+            <Route
+              path="/challenges/:challengeId/edit"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <EditChallengeForm />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/protected-join/:challengeId"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <JoinChallenge />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+            <Route path="/join/:challengeId" element={<PublicJoinChallenge />} />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Router>
+            <Route
+              path="/protected-join/:challengeId"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <JoinChallenge />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+      </NotificationProvider>
     </AuthProvider>
   )
 }

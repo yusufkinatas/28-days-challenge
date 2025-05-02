@@ -7,6 +7,7 @@ import React, {
 } from 'react'
 import { useParams } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { useNotification } from '../../context/NotificationContext'
 import {
   getChallenge,
   getChallengeCompletions,
@@ -14,6 +15,8 @@ import {
   toggleCompletion
 } from '../../firebase/services'
 import { CompletionRecord, FirebaseChallenge, UserProfile } from '../../types'
+import { playSound } from '../../utils/soundService'
+import { getRandomMessage } from '../../utils/motivationalMessages'
 
 interface ChallengeContextType {
   challenge: FirebaseChallenge | null
@@ -45,6 +48,7 @@ interface ChallengeProviderProps {
 export function ChallengeProvider({ children }: ChallengeProviderProps) {
   const { challengeId } = useParams<{ challengeId: string }>()
   const { currentUser } = useAuth()
+  const { showNotification } = useNotification()
 
   const [challenge, setChallenge] = useState<FirebaseChallenge | null>(null)
   const [completions, setCompletions] = useState<CompletionRecord[]>([])
@@ -133,9 +137,23 @@ export function ChallengeProvider({ children }: ChallengeProviderProps) {
           return [...prev, updatedCompletion]
         }
       })
+
+      // Show motivational notification if the user completed an item
+      if (updatedCompletion.completed) {
+        // Play success sound
+        playSound('success')
+        
+        // Show motivational notification
+        const motivationalMessage = getRandomMessage()
+        showNotification(motivationalMessage, 'success', 3000)
+      }
     } catch (err) {
       console.error('Error toggling completion:', err)
       setError('Failed to update completion status')
+      
+      // Play error sound and show error notification
+      playSound('error')
+      showNotification('Failed to update completion status', 'error')
     }
   }
 
@@ -149,9 +167,19 @@ export function ChallengeProvider({ children }: ChallengeProviderProps) {
       () => {
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
+        
+        // Play notification sound
+        playSound('notification')
+        
+        // Show notification
+        showNotification('Invitation link copied to clipboard!', 'info', 2000)
       },
       (err) => {
         console.error('Could not copy text: ', err)
+        
+        // Show error notification
+        playSound('error')
+        showNotification('Failed to copy invitation link', 'error')
       }
     )
   }
