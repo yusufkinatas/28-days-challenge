@@ -9,8 +9,8 @@ import {
   useNavigate
 } from 'react-router-dom'
 import { ChallengeList } from './components/challenges/ChallengeList'
-import { CreateChallengeForm } from './components/challenges/CreateChallengeForm'
 import { ChallengeTracker } from './components/challenges/ChallengeTracker'
+import { CreateChallengeForm } from './components/challenges/CreateChallengeForm'
 import { EditChallengeForm } from './components/challenges/EditChallengeForm'
 import { JoinChallenge } from './components/challenges/JoinChallenge'
 import { UserProfileEditor } from './components/profile/UserProfileEditor'
@@ -20,7 +20,6 @@ import { NotificationProvider } from './context/NotificationContext'
 import { NotificationContainer } from './components/ui/NotificationContainer'
 import { User, LogOut, Clock } from 'lucide-react'
 import { useEffect } from 'react'
-import { initSoundService } from './utils/soundService'
 
 // Layout with navigation
 function Layout({ children }: { children: React.ReactNode }) {
@@ -157,7 +156,6 @@ function PublicJoinChallenge() {
 }
 
 function App() {
-  // Initialize sound service on app load
   useEffect(() => {
     initSoundService()
   }, [])

@@ -11,11 +11,10 @@ import { useNotification } from '../../context/NotificationContext'
 import {
   getChallenge,
   getChallengeCompletions,
-  getUserProfiles,
+  updateChallenge,
   toggleCompletion
 } from '../../firebase/services'
 import { CompletionRecord, FirebaseChallenge, UserProfile } from '../../types'
-import { playSound } from '../../utils/soundService'
 import { getRandomMessage } from '../../utils/motivationalMessages'
 
 interface ChallengeContextType {
@@ -141,7 +140,6 @@ export function ChallengeProvider({ children }: ChallengeProviderProps) {
       // Show motivational notification if the user completed an item
       if (updatedCompletion.completed) {
         // Play success sound
-        playSound('success')
         
         // Show motivational notification
         const motivationalMessage = getRandomMessage()
@@ -152,9 +150,69 @@ export function ChallengeProvider({ children }: ChallengeProviderProps) {
       setError('Failed to update completion status')
       
       // Play error sound and show error notification
-      playSound('error')
       showNotification('Failed to update completion status', 'error')
     }
+  }
+
+  const handleToggleCompletion = async (dayIndex: number, itemIndex: number) => {
+    if (!challenge || !currentUser) return
+
+    try {
+      const updatedCompletion = await toggleCompletion(
+        challengeId!,
+        currentUser.uid,
+        dayIndex,
+        itemIndex
+      )
+
+      // Update the completions state
+      setCompletions((prev) => {
+        const existingIndex = prev.findIndex(
+          (c) => c.dayIndex === dayIndex && c.itemIndex === itemIndex
+        )
+
+        if (existingIndex >= 0) {
+          const newCompletions = [...prev]
+          newCompletions[existingIndex] = updatedCompletion
+          return newCompletions
+        } else {
+          return [...prev, updatedCompletion]
+        }
+      })
+
+      // Show motivational notification if the user completed an item
+      if (updatedCompletion.completed) {
+        // Show motivational notification
+        const motivationalMessage = getRandomMessage()
+        showNotification(motivationalMessage, 'success', 3000)
+      }
+    } catch (err) {
+      console.error('Error toggling completion:', err)
+      setError('Failed to update completion status')
+      
+      // Show error notification
+      showNotification('Failed to update completion status', 'error')
+    }
+  }
+
+  const copyInviteLink = () => {
+    const inviteLink = `${window.location.origin}/join/${challengeId}`
+    
+    navigator.clipboard.writeText(inviteLink).then(
+      () => {
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+        
+        // Show notification
+        showNotification('Invitation link copied to clipboard!', 'info', 2000)
+      },
+      (err) => {
+        console.error('Could not copy text: ', err)
+        
+        // Show error notification
+        showNotification('Failed to copy invitation link', 'error')
+      }
+    )
   }
 
   const copyInviteLinkHandler = () => {
@@ -169,7 +227,6 @@ export function ChallengeProvider({ children }: ChallengeProviderProps) {
         setTimeout(() => setCopied(false), 2000)
         
         // Play notification sound
-        playSound('notification')
         
         // Show notification
         showNotification('Invitation link copied to clipboard!', 'info', 2000)
@@ -178,7 +235,6 @@ export function ChallengeProvider({ children }: ChallengeProviderProps) {
         console.error('Could not copy text: ', err)
         
         // Show error notification
-        playSound('error')
         showNotification('Failed to copy invitation link', 'error')
       }
     )
