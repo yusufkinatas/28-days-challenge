@@ -1,15 +1,17 @@
-import { CheckCircle, Copy, Info } from 'lucide-react'
+import { Award, CheckCircle, Copy, Info } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useChallengeContext } from './ChallengeContext'
 import { useState } from 'react'
 import { Dialog } from '../ui/Dialog'
 import { ChallengeRules } from './ChallengeRules'
+import { Leaderboard } from './Leaderboard'
 
 export function ChallengeHeader() {
   const { challenge, participants, copied, copyInviteLinkHandler } =
     useChallengeContext()
   const { currentUser } = useAuth()
   const [rulesOpen, setRulesOpen] = useState(false)
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false)
 
   return (
     <div>
@@ -30,6 +32,13 @@ export function ChallengeHeader() {
           title="View challenge rules"
         >
           <Info size={20} />
+        </button>
+        <button
+          onClick={() => setLeaderboardOpen(true)}
+          className="text-gray-500 hover:text-gray-700"
+          title="View leaderboard"
+        >
+          <Award size={20} />
         </button>
       </div>
 
@@ -55,6 +64,14 @@ export function ChallengeHeader() {
         title="Challenge Rules"
       >
         <ChallengeRules />
+      </Dialog>
+
+      <Dialog
+        isOpen={leaderboardOpen}
+        onClose={() => setLeaderboardOpen(false)}
+        title="Leaderboard"
+      >
+        <Leaderboard />
       </Dialog>
     </div>
   )
