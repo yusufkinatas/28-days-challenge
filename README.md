@@ -89,7 +89,3 @@ yarn serve
 - `src/hooks/`: Custom React hooks
 - `src/types/`: TypeScript type definitions
 - `src/utils/`: Utility functions
-
-## License
-
-[MIT](LICENSE)
