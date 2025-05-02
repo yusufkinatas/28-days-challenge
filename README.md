@@ -22,8 +22,8 @@ A web application for creating and tracking 28-day challenges. This tool helps u
 
 ## Prerequisites
 
-- Node.js (v16 or later)
-- npm or yarn
+- Node.js (v20 or later)
+- pnpm
 - A Firebase account (for your own deployment)
 
 ## Getting Started
@@ -38,9 +38,7 @@ cd 28-days-challenge
 ### 2. Install dependencies
 
 ```bash
-npm install
-# or
-yarn install
+pnpm install
 ```
 
 ### 3. Firebase Setup (for your own deployment)
@@ -56,9 +54,7 @@ This project uses Firebase for authentication and data storage. The repository i
 ### 4. Start the development server
 
 ```bash
-npm run dev
-# or
-yarn dev
+pnpm dev
 ```
 
 The application will be available at [http://localhost:5173](http://localhost:5173)
@@ -66,9 +62,7 @@ The application will be available at [http://localhost:5173](http://localhost:51
 ## Building for Production
 
 ```bash
-npm run build
-# or
-yarn build
+pnpm build
 ```
 
 This will create a production-ready build in the `dist` directory.
@@ -76,9 +70,7 @@ This will create a production-ready build in the `dist` directory.
 To preview the production build locally:
 
 ```bash
-npm run serve
-# or
-yarn serve
+pnpm serve
 ```
 
 ## Project Structure
