@@ -20,6 +20,7 @@ import { NotificationProvider } from './context/NotificationContext'
 import { NotificationContainer } from './components/ui/NotificationContainer'
 import { User, LogOut, Clock } from 'lucide-react'
 import { useEffect } from 'react'
+import { initSoundService } from './services/soundService'
 
 // Layout with navigation
 function Layout({ children }: { children: React.ReactNode }) {
@@ -40,7 +41,6 @@ function Layout({ children }: { children: React.ReactNode }) {
 
     if (path === '/') return 'Dashboard'
     if (path === '/profile') return 'My Profile'
-    if (path === '/challenges/new') return 'Create Challenge'
     if (path.startsWith('/challenges/')) return 'Challenge Details'
     if (path.startsWith('/join/')) return 'Join Challenge'
 
