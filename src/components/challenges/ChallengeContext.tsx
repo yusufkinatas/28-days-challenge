@@ -14,6 +14,7 @@ import {
   toggleCompletion
 } from '../../firebase/services'
 import { CompletionRecord, FirebaseChallenge, UserProfile } from '../../types'
+import { useMotivation } from '../../hooks/useMotivation'
 
 interface ChallengeContextType {
   challenge: FirebaseChallenge | null
@@ -45,6 +46,7 @@ interface ChallengeProviderProps {
 export function ChallengeProvider({ children }: ChallengeProviderProps) {
   const { challengeId } = useParams<{ challengeId: string }>()
   const { currentUser } = useAuth()
+  const { celebrateCompletion } = useMotivation()
 
   const [challenge, setChallenge] = useState<FirebaseChallenge | null>(null)
   const [completions, setCompletions] = useState<CompletionRecord[]>([])
@@ -133,6 +135,11 @@ export function ChallengeProvider({ children }: ChallengeProviderProps) {
           return [...prev, updatedCompletion]
         }
       })
+
+      // Show motivational notification if the item was marked as completed
+      if (updatedCompletion.completed) {
+        celebrateCompletion()
+      }
     } catch (err) {
       console.error('Error toggling completion:', err)
       setError('Failed to update completion status')

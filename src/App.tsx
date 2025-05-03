@@ -18,6 +18,7 @@ import { AuthTabs } from './components/auth/AuthTabs'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { User, LogOut, Clock } from 'lucide-react'
 import { useEffect } from 'react'
+import { Toaster } from 'react-hot-toast'
 
 // Layout with navigation
 function Layout({ children }: { children: React.ReactNode }) {
@@ -157,6 +158,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <Toaster />
         <Routes>
           <Route
             path="/login"
