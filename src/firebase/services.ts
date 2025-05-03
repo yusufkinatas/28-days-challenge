@@ -8,10 +8,17 @@ import {
   query,
   updateDoc,
   where,
-  setDoc
+  setDoc,
+  orderBy
 } from 'firebase/firestore'
-import { CompletionRecord, FirebaseChallenge, UserProfile } from '../types'
-import { auth, db } from './config'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import {
+  CompletionRecord,
+  FirebaseChallenge,
+  PhotoAttachment,
+  UserProfile
+} from '../types'
+import { auth, db, storage } from './config'
 
 // Challenges Collection
 const challengesCollection = collection(db, 'challenges')
@@ -240,6 +247,64 @@ export const toggleCompletion = async (
       ...updatedCompletion
     }
   }
+}
+
+// Photos Collection
+const photosCollection = collection(db, 'photos')
+
+// Upload a photo for a challenge
+export const uploadChallengePhoto = async (
+  challengeId: string,
+  file: File
+): Promise<PhotoAttachment> => {
+  if (!auth.currentUser) throw new Error('User not authenticated')
+
+  // Create a storage reference
+  const storageRef = ref(
+    storage,
+    `challenges/${challengeId}/${Date.now()}_${file.name}`
+  )
+
+  // Upload the file
+  const snapshot = await uploadBytes(storageRef, file)
+
+  // Get the download URL
+  const url = await getDownloadURL(snapshot.ref)
+
+  // Create a new photo attachment record
+  const photoData: Omit<PhotoAttachment, 'id'> = {
+    url,
+    uploaderId: auth.currentUser.uid,
+    uploadedAt: Date.now()
+  }
+
+  // Add the photo to Firestore
+  const docRef = await addDoc(photosCollection, {
+    ...photoData,
+    challengeId
+  })
+
+  return {
+    id: docRef.id,
+    ...photoData
+  }
+}
+
+// Get all photos for a challenge
+export const getChallengePhotos = async (
+  challengeId: string
+): Promise<PhotoAttachment[]> => {
+  const photosQuery = query(
+    photosCollection,
+    where('challengeId', '==', challengeId),
+    orderBy('uploadedAt', 'desc')
+  )
+
+  const querySnapshot = await getDocs(photosQuery)
+  return querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data()
+  })) as PhotoAttachment[]
 }
 
 // User Profiles Collection

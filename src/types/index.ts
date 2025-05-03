@@ -20,6 +20,13 @@ export interface UserProfile {
   color: string
 }
 
+export interface PhotoAttachment {
+  id?: string
+  url: string
+  uploaderId: string
+  uploadedAt: number
+}
+
 // Firebase data models
 export interface FirebaseChallenge {
   id?: string

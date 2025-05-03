@@ -1,6 +1,7 @@
 import { ChallengeProvider, useChallengeContext } from './ChallengeContext'
 import { ChallengeHeader } from './ChallengeHeader'
 import { ChallengeTable } from './ChallengeTable'
+import { ChallengePhotoGallery } from './ChallengePhotoGallery'
 
 function ChallengeContent() {
   const { loading, error, challenge } = useChallengeContext()
@@ -21,6 +22,7 @@ function ChallengeContent() {
     <div>
       <ChallengeHeader />
       <ChallengeTable />
+      <ChallengePhotoGallery />
     </div>
   )
 }
