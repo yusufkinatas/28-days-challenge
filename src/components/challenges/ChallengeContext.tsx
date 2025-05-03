@@ -7,6 +7,7 @@ import React, {
 } from 'react'
 import { useParams } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { useNotification } from '../../context/NotificationContext'
 import {
   getChallenge,
   getChallengeCompletions,
@@ -14,6 +15,7 @@ import {
   toggleCompletion
 } from '../../firebase/services'
 import { CompletionRecord, FirebaseChallenge, UserProfile } from '../../types'
+import { motivationalMessages } from '../../utils/messages'
 
 interface ChallengeContextType {
   challenge: FirebaseChallenge | null
@@ -45,6 +47,7 @@ interface ChallengeProviderProps {
 export function ChallengeProvider({ children }: ChallengeProviderProps) {
   const { challengeId } = useParams<{ challengeId: string }>()
   const { currentUser } = useAuth()
+  const { showNotification } = useNotification()
 
   const [challenge, setChallenge] = useState<FirebaseChallenge | null>(null)
   const [completions, setCompletions] = useState<CompletionRecord[]>([])
@@ -109,6 +112,21 @@ export function ChallengeProvider({ children }: ChallengeProviderProps) {
       }
 
       const updatedCompletion = await toggleCompletion(completionData)
+
+      // Show motivational notification when an item is marked as completed
+      if (updatedCompletion.completed) {
+        // Pick a random motivational message
+        const randomIndex = Math.floor(
+          Math.random() * motivationalMessages.length
+        )
+        const randomMessage = motivationalMessages[randomIndex]
+
+        // Show notification with motivational type and sound
+        showNotification(randomMessage, {
+          type: 'motivational',
+          soundId: 'motivation-cheer-1'
+        })
+      }
 
       // Update local state
       setCompletions((prev) => {
