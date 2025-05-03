@@ -6,12 +6,29 @@ import { PlusCircle, Pencil, Trash2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
 export function ChallengeList() {
+  // Define the array of dad jokes
+  const dadJokes = [
+    'I told my wife she was drawing her eyebrows too high. She looked surprised.',
+    "Did you hear about the mathematician who's afraid of negative numbers? He'll stop at nothing to avoid them.",
+    "Why don't scientists trust atoms? Because they make up everything.",
+    "I would tell you a joke about pizza, but it's too cheesy.",
+    'What do you call a fake noodle? An impasta.'
+  ]
+
+  // Add state for tracking the current joke index
+  const [currentJokeIndex, setCurrentJokeIndex] = useState(0)
+
   const [challenges, setChallenges] = useState<FirebaseChallenge[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null)
   const { currentUser } = useAuth()
   const navigate = useNavigate()
+
+  // Add handler to cycle to the next joke
+  const handleNextJoke = () => {
+    setCurrentJokeIndex((prevIndex) => (prevIndex + 1) % dadJokes.length)
+  }
 
   useEffect(() => {
     const fetchChallenges = async () => {
@@ -79,6 +96,19 @@ export function ChallengeList() {
           <PlusCircle size={20} />
           <span>New Challenge</span>
         </Link>
+      </div>
+
+      {/* Dad joke section */}
+      <div className="mb-8 flex flex-col items-center text-center">
+        <button
+          onClick={handleNextJoke}
+          className="mb-3 rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+        >
+          Get Dad Joke
+        </button>
+        <p className="text-lg italic text-gray-700">
+          {dadJokes[currentJokeIndex]}
+        </p>
       </div>
 
       {challenges.length === 0 ? (
