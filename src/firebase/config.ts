@@ -8,7 +8,7 @@ const firebaseConfig = {
   apiKey: 'AIzaSyCKqz2Xd5DhFulxl1_IRMSPaPQA1VcnGXk',
   authDomain: 'days-challenge-96f21.firebaseapp.com',
   projectId: 'days-challenge-96f21',
-  storageBucket: 'days-challenge-96f21.firebasestorage.app',
+  storageBucket: 'days-challenge-96f21.appspot.com',
   messagingSenderId: '112234932793',
   appId: '1:112234932793:web:1130a4046083f0d4b1fbe8',
   measurementId: 'G-VE2VW0KH2K'
