@@ -1,0 +1,4 @@
+checkCommands:
+  fix: bun run fix
+  lint: bun run lint
+  types: bun run typecheck
