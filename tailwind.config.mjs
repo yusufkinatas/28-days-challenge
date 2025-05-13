@@ -16,7 +16,7 @@ export default {
       },
       animation: {
         fadeIn: 'fadeIn 0.5s ease-in-out forwards',
-        sparkle: 'ping 2s ease-in-out infinite'
+        sparkle: 'ping 1s ease-in-out infinite'
       }
     }
   },

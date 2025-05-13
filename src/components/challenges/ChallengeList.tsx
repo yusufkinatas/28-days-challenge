@@ -138,7 +138,7 @@ export function ChallengeList() {
           {jokeLoading ? (
             <div className="flex items-center justify-center">
               <Loader2 size={24} className="animate-spin text-green-600 mr-2" />
-              <p className="text-lg font-medium text-gray-600">Loading joke...</p>
+              <p className="text-lg font-medium text-gray-600">Loading joke</p>
             </div>
           ) : jokeError ? (
             <p className="text-lg font-medium text-red-600">Failed to load joke. Please try again!</p>
