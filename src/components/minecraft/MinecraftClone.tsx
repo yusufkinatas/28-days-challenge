@@ -380,8 +380,9 @@ export function MinecraftClone() {
     const { camera } = gameState
 
     // Create projection matrix
+    const canvas = gl.canvas as HTMLCanvasElement
     const fieldOfView = 60 * Math.PI / 180 // 60 degrees in radians
-    const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight
+    const aspect = canvas.clientWidth / canvas.clientHeight
     const zNear = 0.1
     const zFar = 100.0
     const projectionMatrix = mat4Perspective(fieldOfView, aspect, zNear, zFar)
