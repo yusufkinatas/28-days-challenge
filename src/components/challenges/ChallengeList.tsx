@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { getUserChallenges, deleteChallenge } from '../../firebase/services'
 import { FirebaseChallenge } from '../../types'
 import { Link, useNavigate } from 'react-router-dom'
-import { PlusCircle, Pencil, Trash2 } from 'lucide-react'
+import { PlusCircle, Pencil, Trash2, Smile } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
 export function ChallengeList() {
@@ -10,8 +10,19 @@ export function ChallengeList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null)
+  const [jokeIndex, setJokeIndex] = useState<number>(0)
+  const [showJoke, setShowJoke] = useState<boolean>(false)
   const { currentUser } = useAuth()
   const navigate = useNavigate()
+  
+  // Array of harmless jokes
+  const jokes = [
+    "Why don't scientists trust atoms? Because they make up everything!",
+    "What's the best thing about Switzerland? I don't know, but the flag is a big plus.",
+    "I told my wife she was drawing her eyebrows too high. She looked surprised.",
+    "How do you organize a space party? You planet!",
+    "Why did the scarecrow win an award? Because he was outstanding in his field!"
+  ]
 
   useEffect(() => {
     const fetchChallenges = async () => {
@@ -55,6 +66,11 @@ export function ChallengeList() {
     e.stopPropagation()
     navigate(`/challenges/${challengeId}/edit`)
   }
+  
+  const handleJokeClick = () => {
+    setShowJoke(true)
+    setJokeIndex((prevIndex) => (prevIndex + 1) % jokes.length)
+  }
 
   if (loading) {
     return <div className="py-8 text-center">Loading challenges...</div>
@@ -72,14 +88,30 @@ export function ChallengeList() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-2xl font-bold">Your Challenges</h2>
-        <Link
-          to="/challenges/new"
-          className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-        >
-          <PlusCircle size={20} />
-          <span>New Challenge</span>
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleJokeClick}
+            className="flex items-center gap-2 rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+            aria-label="Show a joke"
+          >
+            <Smile size={20} />
+            <span>Random Joke</span>
+          </button>
+          <Link
+            to="/challenges/new"
+            className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          >
+            <PlusCircle size={20} />
+            <span>New Challenge</span>
+          </Link>
+        </div>
       </div>
+      
+      {showJoke && (
+        <div className="mb-6 rounded-lg bg-yellow-100 p-4 text-center">
+          <p className="text-lg font-medium text-gray-800">{jokes[jokeIndex]}</p>
+        </div>
+      )}
 
       {challenges.length === 0 ? (
         <div className="rounded-lg bg-gray-50 py-8 text-center">
