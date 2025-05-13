@@ -91,11 +91,14 @@ export function ChallengeList() {
         <div className="flex items-center gap-3">
           <button
             onClick={handleJokeClick}
-            className="flex items-center gap-2 rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+            className="flex items-center gap-2 rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-105 active:scale-95"
             aria-label="Show a joke"
           >
-            <Smile size={20} />
+            <span className="absolute inset-0 bg-white opacity-20 transform -translate-x-full skew-x-12 transition-transform duration-700 ease-out group-hover:translate-x-0"></span>
+            <span className="absolute inset-0 bg-white opacity-10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left"></span>
+            <Smile size={20} className="animate-pulse" />
             <span>Random Joke</span>
+            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-yellow-300 animate-ping"></span>
           </button>
           <Link
             to="/challenges/new"
@@ -108,8 +111,9 @@ export function ChallengeList() {
       </div>
       
       {showJoke && (
-        <div className="mb-6 rounded-lg bg-yellow-100 p-4 text-center">
-          <p className="text-lg font-medium text-gray-800">{jokes[jokeIndex]}</p>
+        <div className="mb-6 rounded-lg bg-yellow-100 p-4 text-center relative overflow-hidden">
+          <span className="absolute inset-0 bg-yellow-200 opacity-30 transform scale-0 animate-[ping_2s_ease-in-out_forwards]"></span>
+          <p className="text-lg font-medium text-gray-800 animate-[fadeIn_0.5s_ease-in-out_forwards]">{jokes[jokeIndex]}</p>
         </div>
       )}
 
