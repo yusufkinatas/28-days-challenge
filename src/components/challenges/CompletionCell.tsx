@@ -1,6 +1,8 @@
 import { Check } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useChallengeContext } from './ChallengeContext'
+import { useToast } from '../../context/ToastContext'
+import { getRandomMotivationalMessage, playSuccessSound } from '../../utils/notifications'
 
 type CompletionCellProps = {
   dateStr: string
@@ -16,6 +18,7 @@ export function CompletionCell({
   const { participants, completions, toggleCompletionHandler } =
     useChallengeContext()
   const { currentUser } = useAuth()
+  const { addToast } = useToast()
 
   const isCompleted = (userId: string) => {
     return completions.some(
@@ -25,6 +28,26 @@ export function CompletionCell({
         c.userId === userId &&
         c.completed
     )
+  }
+
+  const handleToggleCompletion = async () => {
+    if (!currentUser || !isInteractive) return
+    
+    // Get current completion status
+    const currentlyCompleted = isCompleted(currentUser.uid)
+    
+    // Toggle completion
+    await toggleCompletionHandler(dateStr, itemId)
+    
+    // Only show message and play sound when marking as completed (not when uncompleting)
+    if (!currentlyCompleted) {
+      // Play success sound
+      playSuccessSound()
+      
+      // Show motivational message
+      const message = getRandomMotivationalMessage()
+      addToast(message, 'success', 3000)
+    }
   }
 
   return (
@@ -67,7 +90,7 @@ export function CompletionCell({
             }}
             onClick={() => {
               if (canToggle) {
-                toggleCompletionHandler(dateStr, itemId)
+                handleToggleCompletion()
               }
             }}
           >
