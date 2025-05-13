@@ -2,27 +2,44 @@ import { useEffect, useState } from 'react'
 import { getUserChallenges, deleteChallenge } from '../../firebase/services'
 import { FirebaseChallenge } from '../../types'
 import { Link, useNavigate } from 'react-router-dom'
-import { PlusCircle, Pencil, Trash2, Smile } from 'lucide-react'
+import { PlusCircle, Pencil, Trash2, Smile, Loader2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import useSWR from 'swr'
+
+// Fetcher function for SWR
+const fetcher = async (url: string) => {
+  const response = await fetch(url, {
+    headers: {
+      'Accept': 'application/json'
+    }
+  })
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch joke')
+  }
+  
+  return response.json()
+}
 
 export function ChallengeList() {
   const [challenges, setChallenges] = useState<FirebaseChallenge[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null)
-  const [jokeIndex, setJokeIndex] = useState<number>(0)
   const [showJoke, setShowJoke] = useState<boolean>(false)
   const { currentUser } = useAuth()
   const navigate = useNavigate()
   
-  // Array of harmless jokes
-  const jokes = [
-    "Why don't scientists trust atoms? Because they make up everything!",
-    "What's the best thing about Switzerland? I don't know, but the flag is a big plus.",
-    "I told my wife she was drawing her eyebrows too high. She looked surprised.",
-    "How do you organize a space party? You planet!",
-    "Why did the scarecrow win an award? Because he was outstanding in his field!"
-  ]
+  // SWR hook for fetching dad jokes
+  const { data, error: jokeError, isLoading: jokeLoading, mutate } = useSWR(
+    showJoke ? 'https://icanhazdadjoke.com/' : null,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 0
+    }
+  )
 
   useEffect(() => {
     const fetchChallenges = async () => {
@@ -69,7 +86,8 @@ export function ChallengeList() {
   
   const handleJokeClick = () => {
     setShowJoke(true)
-    setJokeIndex((prevIndex) => (prevIndex + 1) % jokes.length)
+    // Trigger revalidation of the joke data
+    mutate()
   }
 
   if (loading) {
@@ -93,10 +111,15 @@ export function ChallengeList() {
             onClick={handleJokeClick}
             className="flex items-center gap-2 rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-105 active:scale-95"
             aria-label="Show a joke"
+            disabled={jokeLoading}
           >
             <span className="absolute inset-0 bg-white opacity-20 transform -translate-x-full skew-x-12 transition-transform duration-700 ease-out group-hover:translate-x-0"></span>
             <span className="absolute inset-0 bg-white opacity-10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left"></span>
-            <Smile size={20} className="animate-pulse" />
+            {jokeLoading ? (
+              <Loader2 size={20} className="animate-spin" />
+            ) : (
+              <Smile size={20} className="animate-pulse" />
+            )}
             <span>Random Joke</span>
             <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-yellow-300 animate-ping"></span>
           </button>
@@ -112,8 +135,19 @@ export function ChallengeList() {
       
       {showJoke && (
         <div className="mb-6 rounded-lg bg-yellow-100 p-4 text-center relative overflow-hidden">
-          <span className="absolute inset-0 bg-yellow-200 opacity-30 transform scale-0 animate-[ping_2s_ease-in-out_forwards]"></span>
-          <p className="text-lg font-medium text-gray-800 animate-[fadeIn_0.5s_ease-in-out_forwards]">{jokes[jokeIndex]}</p>
+          {jokeLoading ? (
+            <div className="flex items-center justify-center">
+              <Loader2 size={24} className="animate-spin text-green-600 mr-2" />
+              <p className="text-lg font-medium text-gray-600">Loading joke...</p>
+            </div>
+          ) : jokeError ? (
+            <p className="text-lg font-medium text-red-600">Failed to load joke. Please try again!</p>
+          ) : data ? (
+            <>
+              <span className="absolute inset-0 bg-yellow-200 opacity-30 transform scale-0 animate-[ping_2s_ease-in-out_forwards]"></span>
+              <p className="text-lg font-medium text-gray-800 animate-[fadeIn_0.5s_ease-in-out_forwards]">{data.joke}</p>
+            </>
+          ) : null}
         </div>
       )}
 
