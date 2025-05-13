@@ -48,3 +48,15 @@ export interface CompletionRecord {
   completed: boolean
   completedAt: number
 }
+
+// Photo attachment model
+export interface PhotoAttachment {
+  id?: string
+  challengeId: string
+  userId: string
+  uploadedBy: string
+  uploadedAt: number
+  url: string
+  fileName: string
+  contentType: string
+}

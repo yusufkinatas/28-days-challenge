@@ -10,8 +10,15 @@ import {
   where,
   setDoc
 } from 'firebase/firestore'
-import { CompletionRecord, FirebaseChallenge, UserProfile } from '../types'
-import { auth, db } from './config'
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject
+} from 'firebase/storage'
+import { v4 as uuidv4 } from 'uuid'
+import { CompletionRecord, FirebaseChallenge, PhotoAttachment, UserProfile } from '../types'
+import { auth, db, storage } from './config'
 
 // Challenges Collection
 const challengesCollection = collection(db, 'challenges')
@@ -321,4 +328,107 @@ function getRandomColor() {
   ]
 
   return colors[Math.floor(Math.random() * colors.length)]
+}
+
+// Photos Collection
+const photosCollection = collection(db, 'photos')
+
+// Upload a photo for a challenge
+export const uploadChallengePhoto = async (
+  challengeId: string,
+  file: File
+): Promise<PhotoAttachment> => {
+  if (!auth.currentUser) throw new Error('User not authenticated')
+
+  // Validate the challenge exists and user is a participant
+  const challenge = await getChallenge(challengeId)
+  if (!challenge) throw new Error('Challenge not found')
+  if (!challenge.participants.includes(auth.currentUser.uid)) {
+    throw new Error('Only participants can upload photos to this challenge')
+  }
+
+  // Create a unique filename
+  const fileExtension = file.name.split('.').pop()
+  const fileName = `${uuidv4()}.${fileExtension}`
+  const filePath = `challenges/${challengeId}/photos/${fileName}`
+  
+  // Upload to Firebase Storage
+  const storageRef = ref(storage, filePath)
+  await uploadBytes(storageRef, file)
+  
+  // Get the download URL
+  const downloadURL = await getDownloadURL(storageRef)
+  
+  // Create a record in Firestore
+  const photoData: Omit<PhotoAttachment, 'id'> = {
+    challengeId,
+    userId: auth.currentUser.uid,
+    uploadedBy: auth.currentUser.uid,
+    uploadedAt: Date.now(),
+    url: downloadURL,
+    fileName,
+    contentType: file.type
+  }
+  
+  const docRef = await addDoc(photosCollection, photoData)
+  
+  return {
+    id: docRef.id,
+    ...photoData
+  } as PhotoAttachment
+}
+
+// Get photos for a challenge
+export const getChallengePhotos = async (
+  challengeId: string
+): Promise<PhotoAttachment[]> => {
+  if (!auth.currentUser) throw new Error('User not authenticated')
+  
+  // Validate the challenge exists and user is a participant
+  const challenge = await getChallenge(challengeId)
+  if (!challenge) throw new Error('Challenge not found')
+  if (!challenge.participants.includes(auth.currentUser.uid)) {
+    throw new Error('Only participants can view photos from this challenge')
+  }
+  
+  const photosQuery = query(
+    photosCollection,
+    where('challengeId', '==', challengeId)
+  )
+  
+  const querySnapshot = await getDocs(photosQuery)
+  return querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data()
+  })) as PhotoAttachment[]
+}
+
+// Delete a photo
+export const deletePhoto = async (photoId: string): Promise<boolean> => {
+  if (!auth.currentUser) throw new Error('User not authenticated')
+  
+  // Get the photo document
+  const photoRef = doc(db, 'photos', photoId)
+  const photoSnap = await getDoc(photoRef)
+  
+  if (!photoSnap.exists()) throw new Error('Photo not found')
+  
+  const photoData = photoSnap.data() as PhotoAttachment
+  
+  // Check if user is the uploader or challenge creator
+  if (photoData.uploadedBy !== auth.currentUser.uid) {
+    const challenge = await getChallenge(photoData.challengeId)
+    if (!challenge || challenge.createdBy !== auth.currentUser.uid) {
+      throw new Error('Not authorized to delete this photo')
+    }
+  }
+  
+  // Delete from Storage
+  const storageRef = ref(storage, `challenges/${photoData.challengeId}/photos/${photoData.fileName}`)
+  await deleteObject(storageRef)
+  
+  // Delete from Firestore
+  await deleteDoc(photoRef)
+  
+  return true
 }
