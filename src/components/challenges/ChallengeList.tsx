@@ -4,6 +4,7 @@ import { FirebaseChallenge } from '../../types'
 import { Link, useNavigate } from 'react-router-dom'
 import { PlusCircle, Pencil, Trash2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { MinecraftModal } from '../minecraft/MinecraftModal'
 
 export function ChallengeList() {
   const [challenges, setChallenges] = useState<FirebaseChallenge[]>([])
@@ -72,13 +73,16 @@ export function ChallengeList() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-2xl font-bold">Your Challenges</h2>
-        <Link
-          to="/challenges/new"
-          className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-        >
-          <PlusCircle size={20} />
-          <span>New Challenge</span>
-        </Link>
+        <div className="flex gap-4">
+          <MinecraftModal />
+          <Link
+            to="/challenges/new"
+            className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          >
+            <PlusCircle size={20} />
+            <span>New Challenge</span>
+          </Link>
+        </div>
       </div>
 
       {challenges.length === 0 ? (
