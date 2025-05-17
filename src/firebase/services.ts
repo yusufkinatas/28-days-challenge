@@ -242,6 +242,54 @@ export const toggleCompletion = async (
   }
 }
 
+// Add or update photo URL for a completion
+export const updateCompletionPhoto = async (
+  completionId: string,
+  photoUrl: string | null
+) => {
+  if (!auth.currentUser) throw new Error('User not authenticated')
+
+  const completionRef = doc(db, 'completions', completionId)
+  const completionSnap = await getDoc(completionRef)
+
+  if (!completionSnap.exists()) {
+    throw new Error('Completion record not found')
+  }
+
+  const completionData = completionSnap.data() as CompletionRecord
+  
+  // Verify that the user owns this completion record
+  if (completionData.userId !== auth.currentUser.uid) {
+    throw new Error('Not authorized to update this completion')
+  }
+
+  // Update the photo URL
+  await updateDoc(completionRef, {
+    photoUrl: photoUrl
+  })
+
+  return {
+    ...completionData,
+    id: completionId,
+    photoUrl: photoUrl
+  } as CompletionRecord
+}
+
+// Get a specific completion record by ID
+export const getCompletionById = async (completionId: string) => {
+  const docRef = doc(db, 'completions', completionId)
+  const docSnap = await getDoc(docRef)
+
+  if (docSnap.exists()) {
+    return {
+      id: docSnap.id,
+      ...docSnap.data()
+    } as CompletionRecord
+  }
+
+  return null
+}
+
 // User Profiles Collection
 // Get user profile
 export const getUserProfile = async (userId: string) => {

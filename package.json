@@ -14,12 +14,15 @@
   "dependencies": {
     "@firebase/auth": "^1.10.0",
     "@firebase/firestore": "^4.7.10",
+    "@uploadthing/react": "^7.3.1",
     "firebase": "^11.6.0",
     "lucide-react": "^0.501.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-firebase-hooks": "^5.1.1",
-    "react-router-dom": "^7.5.1"
+    "react-router-dom": "^7.5.1",
+    "react-webcam": "^7.2.0",
+    "uploadthing": "^7.7.2"
   },
   "devDependencies": {
     "@types/node": "^20.17.19",
