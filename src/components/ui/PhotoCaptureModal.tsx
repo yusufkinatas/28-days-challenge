@@ -38,7 +38,7 @@ export function PhotoCaptureModal({ completionId, isOpen, onClose }: Props) {
   const handleUpload = async () => {
     if (!file) return
     if (!completionId) {
-      addToast('Missing completion ID – cannot upload photo', 'error', 4000)
+      addToast('Missing completion ID - cannot upload photo', 'error', 4000)
       return
     }
 
@@ -93,7 +93,7 @@ export function PhotoCaptureModal({ completionId, isOpen, onClose }: Props) {
             onClick={handleUpload}
             disabled={!file || isUploading}
           >
-            {isUploading ? 'Uploading…' : 'Upload'}
+            {isUploading ? 'Uploading...' : 'Upload'}
           </button>
         </div>
       </div>
