@@ -1,3 +1,5 @@
+import { uploadFiles } from '../utils/uploadthing'
+
 // cuid2 was replaced: milliseconds-timestamp is sufficient for unique temp filenames.
 
 /**
@@ -8,22 +10,22 @@ export async function uploadImage(file: File): Promise<string> {
   const apiKey = import.meta.env.VITE_UPLOADTHING_API_KEY
   if (!apiKey) throw new Error('UploadThing API key not configured')
 
-  const formData = new FormData()
-  // Use a simple timestamp for a unique filename
+  // Rename file so every upload has a unique filename (timestamp-based).
   const ext = file.name.split('.').pop() ?? 'jpg'
-  formData.append('files', file, `${Date.now()}.${ext}`)
-
-  const res = await fetch('https://uploadthing.com/api/files', {
-    method: 'POST',
-    headers: { Authorization: apiKey },
-    body: formData
+  const stampedFile = new File([file], `${Date.now()}.${ext}`, {
+    type: file.type
   })
 
-  if (!res.ok) {
-    console.error(await res.text())
-    throw new Error('Failed to upload image')
-  }
+  // `uploadFiles` returns an array with info about the uploaded files.
+  // The endpoint slug does not matter when talking to the public API.
+  // We still forward the API-key via Authorization header.
+  const res = await uploadFiles('files', [stampedFile], {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    headers: { Authorization: apiKey } as any
+  })
 
-  const data: { url: string } = await res.json()
-  return data.url
+  const url = (res as { url: string }[])[0]?.url
+  if (!url) throw new Error('Failed to upload image')
+
+  return url
 }

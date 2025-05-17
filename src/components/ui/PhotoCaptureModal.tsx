@@ -1,6 +1,6 @@
-import { useState, ChangeEvent } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { Dialog } from './Dialog'
-import { uploadImage } from '../../services/uploadthingService'
+import { useUploadThing } from '../../utils/uploadthing'
 import { updateCompletionPhoto } from '../../firebase/services'
 import { useToast } from '../../context/ToastContext'
 
@@ -13,8 +13,20 @@ interface Props {
 export function PhotoCaptureModal({ completionId, isOpen, onClose }: Props) {
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
-  const [uploading, setUploading] = useState(false)
   const { addToast } = useToast()
+
+  const { startUpload, isUploading } = useUploadThing('files')
+
+  const resetState = () => {
+    if (preview) URL.revokeObjectURL(preview)
+    setFile(null)
+    setPreview(null)
+  }
+
+  useEffect(() => {
+    if (!isOpen) resetState()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen])
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0]
@@ -24,18 +36,27 @@ export function PhotoCaptureModal({ completionId, isOpen, onClose }: Props) {
   }
 
   const handleUpload = async () => {
-    if (!file || !completionId) return
+    if (!file) return
+    if (!completionId) {
+      addToast('Missing completion ID – cannot upload photo', 'error', 4000)
+      return
+    }
+
     try {
-      setUploading(true)
-      const url = await uploadImage(file)
+      const apiKey = import.meta.env.VITE_UPLOADTHING_API_KEY
+      const res = await startUpload([file], {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        headers: { Authorization: apiKey } as any
+      })
+      const url = res?.[0]?.url
+      if (!url) throw new Error('No URL returned from UploadThing')
+
       await updateCompletionPhoto(completionId, url)
       addToast('Photo uploaded successfully', 'success', 3000)
       onClose()
-    } catch (e) {
-      console.error(e)
+    } catch (err) {
+      console.error(err)
       addToast('Failed to upload image', 'error', 4000)
-    } finally {
-      setUploading(false)
     }
   }
 
@@ -63,16 +84,16 @@ export function PhotoCaptureModal({ completionId, isOpen, onClose }: Props) {
           <button
             className="rounded border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
             onClick={onClose}
-            disabled={uploading}
+            disabled={isUploading}
           >
             Cancel
           </button>
           <button
             className="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
             onClick={handleUpload}
-            disabled={!file || uploading}
+            disabled={!file || isUploading}
           >
-            {uploading ? 'Uploading...' : 'Upload'}
+            {isUploading ? 'Uploading…' : 'Upload'}
           </button>
         </div>
       </div>
