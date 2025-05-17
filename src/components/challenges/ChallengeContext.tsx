@@ -22,7 +22,10 @@ interface ChallengeContextType {
   loading: boolean
   error: string | null
   copied: boolean
-  toggleCompletionHandler: (day: string, itemId: string) => Promise<void>
+  toggleCompletionHandler: (
+    day: string,
+    itemId: string
+  ) => Promise<CompletionRecord | null>
   copyInviteLinkHandler: () => void
 }
 
@@ -96,8 +99,11 @@ export function ChallengeProvider({ children }: ChallengeProviderProps) {
     fetchChallengeData()
   }, [challengeId, currentUser])
 
-  const toggleCompletionHandler = async (day: string, itemId: string) => {
-    if (!challengeId || !currentUser || !challenge) return
+  const toggleCompletionHandler = async (
+    day: string,
+    itemId: string
+  ): Promise<CompletionRecord | null> => {
+    if (!challengeId || !currentUser || !challenge) return null
 
     try {
       const completionData = {
@@ -110,7 +116,6 @@ export function ChallengeProvider({ children }: ChallengeProviderProps) {
 
       const updatedCompletion = await toggleCompletion(completionData)
 
-      // Update local state
       setCompletions((prev) => {
         const exists = prev.some(
           (c) =>
@@ -133,9 +138,12 @@ export function ChallengeProvider({ children }: ChallengeProviderProps) {
           return [...prev, updatedCompletion]
         }
       })
+
+      return updatedCompletion
     } catch (err) {
       console.error('Error toggling completion:', err)
       setError('Failed to update completion status')
+      return null
     }
   }
 

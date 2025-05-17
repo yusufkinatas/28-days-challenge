@@ -1,14 +1,14 @@
 // Motivational messages to display when completing challenges
 export const motivationalMessages = [
   'Great job! Keep up the good work!',
-  'You\'re making excellent progress!',
-  'Keep it up! You\'re building a great habit!',
+  "You're making excellent progress!",
+  "Keep it up! You're building a great habit!",
   'Another step toward your goal! Well done!',
-  'Consistency is key, and you\'re nailing it!',
-  'You\'re on fire! 🔥 Keep the streak going!',
+  "Consistency is key, and you're nailing it!",
+  "You're on fire! 🔥 Keep the streak going!",
   'Awesome work today! Tomorrow will be even better!',
   'Small steps lead to big changes. Nice work!',
-  'That\'s the spirit! You\'re doing great!',
+  "That's the spirit! You're doing great!",
   'Proud of your commitment! Keep going!'
 ]
 
@@ -22,7 +22,7 @@ export const getRandomMotivationalMessage = (): string => {
 export const playSuccessSound = (): void => {
   const sound = new Audio('/sounds/success.mp3')
   sound.volume = 0.5
-  sound.play().catch(error => {
+  sound.play().catch((error) => {
     console.error('Error playing sound:', error)
   })
 }

@@ -51,6 +51,17 @@ This project uses Firebase for authentication and data storage. The repository i
 4. Get your Firebase configuration from Project Settings
 5. Update the configuration in `src/firebase/config.ts`
 
+### UploadThing
+
+Photo uploads use UploadThing.  
+Create a free account and copy your API key, then add it to a local `.env`:
+
+```bash
+VITE_UPLOADTHING_API_KEY=your_key_here
+```
+
+The app will throw an error on photo upload if the key is missing.
+
 ### 4. Start the development server
 
 ```bash
