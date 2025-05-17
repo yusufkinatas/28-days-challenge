@@ -7,7 +7,6 @@
  * Remove this file once `@uploadthing/react` (and its types) is added
  * to the project dependencies.
  */
-
 declare module '@uploadthing/react' {
   import * as React from 'react'
 
@@ -44,12 +43,44 @@ declare module '@uploadthing/react' {
   export const UploadDropzone: React.FC<UploadThingProps>
 
   /**
-   * Helper to create pre-typed versions of the components.
+   * Upload-related helper hooks/functions borrowed from the real library.
+   * These are intentionally typed loosely – just enough for the rest of the
+   * codebase to compile without the actual implementation installed.
+   */
+  export type UseUploadThing<TInput = unknown, TResult = unknown> = (
+    endpoint: string,
+    opts?: Record<string, unknown>
+  ) => {
+    /** Start an upload for a list of files. */
+    startUpload: (files: File[]) => Promise<TResult>
+    /** Current upload progress in the range 0-100. */
+    isUploading: boolean
+    /** Any error caught during the upload. */
+    error: Error | null
+  }
+
+  /**
+   * Direct helper to upload an array of files without using the React hook.
+   */
+  export type UploadFiles<TResult = unknown> = (
+    endpoint: string,
+    files: File[],
+    opts?: Record<string, unknown>
+  ) => Promise<TResult>
+
+  /**
+   * Helper to create pre-typed versions of the components & hooks.
    * The generic type parameter is ignored in this stub.
    */
   export function generateReactHelpers<TRouter = any>(): {
     UploadButton: React.FC<UploadThingProps>
     UploadDropzone: React.FC<UploadThingProps>
     Uploader: React.FC<UploadThingProps>
+    useUploadThing: UseUploadThing
+    uploadFiles: UploadFiles
   }
+
+  /* Re-export the loose helper types so callers can import them directly. */
+  export const useUploadThing: UseUploadThing
+  export const uploadFiles: UploadFiles
 }
