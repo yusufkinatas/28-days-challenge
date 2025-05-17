@@ -16,6 +16,8 @@ import { JoinChallenge } from './components/challenges/JoinChallenge'
 import { UserProfileEditor } from './components/profile/UserProfileEditor'
 import { AuthTabs } from './components/auth/AuthTabs'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { ToastProvider } from './context/ToastContext'
+import { PhotoProvider } from './context/PhotoContext'
 import { User, LogOut, Clock } from 'lucide-react'
 import { useEffect } from 'react'
 
@@ -156,90 +158,96 @@ function PublicJoinChallenge() {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          <Route
-            path="/login"
-            element={
-              <Layout>
-                <AuthTabs />
-              </Layout>
-            }
-          />
+      <ToastProvider>
+        <PhotoProvider>
+          <Router>
+            <Routes>
+              <Route
+                path="/login"
+                element={
+                  <Layout>
+                    <AuthTabs />
+                  </Layout>
+                }
+              />
 
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <ChallengeList />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <ChallengeList />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <UserProfileEditor />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <UserProfileEditor />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/challenges/new"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <CreateChallengeForm />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/challenges/new"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <CreateChallengeForm />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/challenges/:challengeId"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <ChallengeTracker />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/challenges/:challengeId"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <ChallengeTracker />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="/challenges/:challengeId/edit"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <EditChallengeForm />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/challenges/:challengeId/edit"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <EditChallengeForm />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route path="/join/:challengeId" element={<PublicJoinChallenge />} />
+              <Route path="/join/:challengeId" element={<PublicJoinChallenge />} />
 
-          <Route
-            path="/protected-join/:challengeId"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <JoinChallenge />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="/protected-join/:challengeId"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <JoinChallenge />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Router>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Router>
+        </PhotoProvider>
+      </ToastProvider>
     </AuthProvider>
   )
 }
+
+export default App
 
 export default App
