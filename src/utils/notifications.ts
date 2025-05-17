@@ -1,15 +1,15 @@
 // Motivational messages to display when completing challenges
 export const motivationalMessages = [
   'Great job! Keep up the good work!',
-  "You're making excellent progress!",
-  "Keep it up! You're building a great habit!",
-  'Another step toward your goal! Well done!',
-  "Consistency is key, and you're nailing it!",
-  "You're on fire! 🔥 Keep the streak going!",
-  'Awesome work today! Tomorrow will be even better!',
-  'Small steps lead to big changes. Nice work!',
-  "That's the spirit! You're doing great!",
-  'Proud of your commitment! Keep going!'
+  'You’re making excellent progress!',
+  'Keep it up — you’re building a great habit!',
+  'Another step toward your goal – well done!',
+  'Consistency is key and you’re nailing it!',
+  'You’re on fire! 🔥  Keep the streak going!',
+  'Awesome work today; tomorrow will be even better!',
+  'Small steps lead to big changes — nice work!',
+  'That’s the spirit; you’re doing great!',
+  'Proud of your commitment — keep going!'
 ]
 
 // Get a random motivational message

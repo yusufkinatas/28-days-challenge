@@ -1,4 +1,4 @@
-import { createId } from '@paralleldrive/cuid2'
+// cuid2 was replaced: milliseconds-timestamp is sufficient for unique temp filenames.
 
 /**
  * Upload an image file to UploadThing and return the public URL.
@@ -9,7 +9,9 @@ export async function uploadImage(file: File): Promise<string> {
   if (!apiKey) throw new Error('UploadThing API key not configured')
 
   const formData = new FormData()
-  formData.append('files', file, `${createId()}.${file.name.split('.').pop()}`)
+  // Use a simple timestamp for a unique filename
+  const ext = file.name.split('.').pop() ?? 'jpg'
+  formData.append('files', file, `${Date.now()}.${ext}`)
 
   const res = await fetch('https://uploadthing.com/api/files', {
     method: 'POST',
