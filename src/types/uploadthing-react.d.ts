@@ -47,12 +47,12 @@ declare module '@uploadthing/react' {
    * These are intentionally typed loosely – just enough for the rest of the
    * codebase to compile without the actual implementation installed.
    */
-  export type UseUploadThing<TInput = unknown, TResult = unknown> = (
+  export type UseUploadThing = (
     endpoint: string,
     opts?: Record<string, unknown>
   ) => {
     /** Start an upload for a list of files. */
-    startUpload: (files: File[]) => Promise<TResult>
+    startUpload: (files: File[], opts?: Record<string, unknown>) => Promise<any>
     /** Current upload progress in the range 0-100. */
     isUploading: boolean
     /** Any error caught during the upload. */
@@ -62,17 +62,16 @@ declare module '@uploadthing/react' {
   /**
    * Direct helper to upload an array of files without using the React hook.
    */
-  export type UploadFiles<TResult = unknown> = (
+  export type UploadFiles = (
     endpoint: string,
     files: File[],
     opts?: Record<string, unknown>
-  ) => Promise<TResult>
+  ) => Promise<any>
 
   /**
    * Helper to create pre-typed versions of the components & hooks.
-   * The generic type parameter is ignored in this stub.
    */
-  export function generateReactHelpers<TRouter = any>(): {
+  export function generateReactHelpers(): {
     UploadButton: React.FC<UploadThingProps>
     UploadDropzone: React.FC<UploadThingProps>
     Uploader: React.FC<UploadThingProps>
