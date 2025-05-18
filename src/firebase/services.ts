@@ -211,10 +211,11 @@ export const toggleCompletion = async (
 
   if (querySnapshot.empty) {
     // Create a new completion record
-    const newCompletion = {
+    const newCompletion: CompletionRecord = {
       ...data,
       completed: true,
-      completedAt: Date.now()
+      completedAt: Date.now(),
+      photoUrl: '' // placeholder; updated later if user uploads a photo
     }
 
     const docRef = await addDoc(completionsCollection, newCompletion)
@@ -240,6 +241,19 @@ export const toggleCompletion = async (
       ...updatedCompletion
     }
   }
+}
+
+export const updateCompletionPhoto = async (
+  completionId: string,
+  photoUrl: string
+) => {
+  const completionRef = doc(db, 'completions', completionId)
+  await updateDoc(completionRef, { photoUrl })
+
+  const snap = await getDoc(completionRef)
+  if (!snap.exists()) throw new Error('Completion not found')
+
+  return { id: snap.id, ...snap.data() } as CompletionRecord
 }
 
 // User Profiles Collection

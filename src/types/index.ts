@@ -47,4 +47,5 @@ export interface CompletionRecord {
   itemId: string
   completed: boolean
   completedAt: number
+  photoUrl?: string // NEW – optional photo attachment
 }

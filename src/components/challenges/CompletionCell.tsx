@@ -1,8 +1,13 @@
 import { Check } from 'lucide-react'
+import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useChallengeContext } from './ChallengeContext'
-import { useToast } from '../../context/ToastContext'
-import { getRandomMotivationalMessage, playSuccessSound } from '../../utils/notifications'
+import {
+  getRandomMotivationalMessage,
+  playSuccessSound
+} from '../../utils/notifications'
+import { MotivationalAlert } from '../ui/MotivationalAlert'
+import { PhotoCaptureModal } from '../ui/PhotoCaptureModal'
 
 type CompletionCellProps = {
   dateStr: string
@@ -18,86 +23,98 @@ export function CompletionCell({
   const { participants, completions, toggleCompletionHandler } =
     useChallengeContext()
   const { currentUser } = useAuth()
-  const { addToast } = useToast()
 
-  const isCompleted = (userId: string) => {
-    return completions.some(
+  // NEW local state for dialogs
+  const [showAlert, setShowAlert] = useState(false)
+  const [showPhotoModal, setShowPhotoModal] = useState(false)
+  const [motivationalMessage, setMotivationalMessage] = useState('')
+  const [latestCompletionId, setLatestCompletionId] = useState<string | null>(
+    null
+  )
+
+  const isCompleted = (userId: string) =>
+    completions.some(
       (c) =>
         c.day === dateStr &&
         c.itemId === itemId &&
         c.userId === userId &&
         c.completed
     )
-  }
 
   const handleToggleCompletion = async () => {
     if (!currentUser || !isInteractive) return
-    
-    // Get current completion status
-    const currentlyCompleted = isCompleted(currentUser.uid)
-    
-    // Toggle completion
-    await toggleCompletionHandler(dateStr, itemId)
-    
-    // Only show message and play sound when marking as completed (not when uncompleting)
-    if (!currentlyCompleted) {
-      // Play success sound
+
+    const alreadyCompleted = isCompleted(currentUser.uid)
+    const updated = await toggleCompletionHandler(dateStr, itemId)
+
+    if (!alreadyCompleted && updated) {
       playSuccessSound()
-      
-      // Show motivational message
-      const message = getRandomMotivationalMessage()
-      addToast(message, 'success', 3000)
+      setMotivationalMessage(getRandomMotivationalMessage())
+      setLatestCompletionId(updated.id ?? null)
+      setShowAlert(true)
     }
   }
 
-  return (
-    <div className="flex justify-center gap-2">
-      {participants.map((participant) => {
-        const isCurrentUser = participant.uid === currentUser?.uid
-        const canToggle = isCurrentUser && isInteractive
-        const completed = isCompleted(participant.uid)
+  const renderCells = () =>
+    participants.map((participant) => {
+      const isCurrent = participant.uid === currentUser?.uid
+      const canToggle = isCurrent && isInteractive
+      const completed = isCompleted(participant.uid)
 
-        // Non-interactive date (past) - show check icon only
-        if (!isInteractive) {
-          return (
-            <div
-              key={participant.uid}
-              className="group relative flex size-6 items-center justify-center"
-            >
-              {completed && (
-                <Check
-                  style={{ color: participant.color }}
-                  className="size-6"
-                />
-              )}
-            </div>
-          )
-        }
-
-        // Interactive date (today/yesterday) - show box with background color
+      if (!isInteractive) {
         return (
           <div
             key={participant.uid}
-            className={`group relative flex size-5 items-center justify-center rounded border ${
-              canToggle
-                ? 'cursor-pointer hover:bg-gray-100'
-                : 'cursor-not-allowed'
-            }`}
-            style={{
-              opacity: canToggle ? 1 : 0.5,
-              borderColor: participant.color,
-              backgroundColor: completed ? participant.color : 'transparent'
-            }}
-            onClick={() => {
-              if (canToggle) {
-                handleToggleCompletion()
-              }
-            }}
+            className="group relative flex size-6 items-center justify-center"
           >
-            {completed && <Check className="size-4 text-white" />}
+            {completed && (
+              <Check style={{ color: participant.color }} className="size-6" />
+            )}
           </div>
         )
-      })}
-    </div>
+      }
+
+      return (
+        <div
+          key={participant.uid}
+          className={`group relative flex size-5 items-center justify-center rounded border ${
+            canToggle
+              ? 'cursor-pointer hover:bg-gray-100'
+              : 'cursor-not-allowed'
+          }`}
+          style={{
+            opacity: canToggle ? 1 : 0.5,
+            borderColor: participant.color,
+            backgroundColor: completed ? participant.color : 'transparent'
+          }}
+          onClick={() => {
+            if (canToggle) handleToggleCompletion()
+          }}
+        >
+          {completed && <Check className="size-4 text-white" />}
+        </div>
+      )
+    })
+
+  return (
+    <>
+      <MotivationalAlert
+        isOpen={showAlert}
+        message={motivationalMessage}
+        onAttachPhoto={() => {
+          setShowAlert(false)
+          setShowPhotoModal(true)
+        }}
+        onClose={() => setShowAlert(false)}
+      />
+
+      <PhotoCaptureModal
+        completionId={latestCompletionId}
+        isOpen={showPhotoModal}
+        onClose={() => setShowPhotoModal(false)}
+      />
+
+      <div className="flex justify-center gap-2">{renderCells()}</div>
+    </>
   )
 }

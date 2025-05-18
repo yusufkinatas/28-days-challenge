@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react'
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect
+} from 'react'
 import { Toast, ToastType } from '../utils/notifications'
 
 interface ToastContextType {
@@ -69,8 +75,8 @@ export function ToastProvider({ children }: ToastProviderProps) {
               toast.type === 'success'
                 ? 'bg-green-500 text-white'
                 : toast.type === 'error'
-                ? 'bg-red-500 text-white'
-                : 'bg-blue-500 text-white'
+                  ? 'bg-red-500 text-white'
+                  : 'bg-blue-500 text-white'
             }`}
             style={{ minWidth: '250px' }}
           >
