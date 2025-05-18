@@ -71,7 +71,7 @@ declare module '@uploadthing/react' {
   /**
    * Helper to create pre-typed versions of the components & hooks.
    */
-  export function generateReactHelpers(): {
+  export function generateReactHelpers<TRouteConfig = any>(): {
     UploadButton: React.FC<UploadThingProps>
     UploadDropzone: React.FC<UploadThingProps>
     Uploader: React.FC<UploadThingProps>
